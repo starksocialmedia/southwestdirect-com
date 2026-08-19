@@ -301,7 +301,8 @@ def footer(current=None):
     </div>
     <p class="footer-meta">5151 California Ave STE 100, Irvine, CA 92617-3205 &middot; <a href="tel:{PHONE_TEL}">818-635-1777</a> &middot; <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a></p>
     <p class="footer-credit">Website crafted by
-      <a href="https://starksocial.com" target="_blank" rel="noopener noreferrer">Stark Social</a>
+      <a href="https://starksocial.com" target="_blank" rel="noopener noreferrer"
+         title="Stark Social Media Agency (Santa Clarita/Los Angeles)">Stark Social</a>
     </p>
   </div>
 </footer>'''
