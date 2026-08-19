@@ -724,3 +724,28 @@ reads as balanced when solid boxes sit beside text ending on a baseline. Doing
 it this way keeps the relationship content-relative rather than pinning a magic
 pixel value that would drift if the contact copy changes.
 
+### 27. Accessibility statement corrected
+
+The statement listed a "Skip to main content" link among its implemented
+features. That link was removed in `916f6d0`, which left the published
+statement claiming something the site no longer did — the one item on it that
+was not true.
+
+Replaced with a bullet describing what actually provides the bypass now:
+
+> **Landmark regions** — header, navigation, main and footer — that let
+> assistive technology jump straight to the main content without stepping
+> through the menu.
+
+Not the suggested "Semantic HTML landmarks…" wording, because bullet 1 of the
+same list already says "Semantic HTML markup so screen readers and assistive
+technology can accurately interpret page structure" — the two would have read
+as duplicates sitting next to each other. This version is specifically about
+bypassing repeated navigation, which is the function the skip link served and
+the WCAG 2.4.1 technique the site now relies on.
+
+Verified the claim before publishing it: every page has one `header`, one
+`main`, one `footer` and three `nav` elements, all three navs labelled. The
+other eight bullets were re-checked too — 16 focus-visible rules, zero images
+without alt text, zero heading-level skips.
+
