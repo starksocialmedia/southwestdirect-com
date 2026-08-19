@@ -118,6 +118,10 @@ def picture(slug, cls, alt, sizes, indent, lazy=True, priority=False):
 def head(title, desc, page_path, og_type="website"):
     # index.html canonicalises to the bare root so the site has one URL, not two.
     canonical_path = "" if page_path == "index.html" else page_path
+    # 404 stays out of the index; the three content pages are now live.
+    robots_meta = ('<meta name="robots" content="noindex, nofollow">'
+                   if page_path == "404.html"
+                   else '<meta name="robots" content="index, follow, max-image-preview:large">')
     # The hero portrait is the LCP element on the landing page; hint it early.
     has_map = page_path != "404.html"
     leaflet_css = '<link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">\n' if has_map else ''
@@ -132,8 +136,7 @@ def head(title, desc, page_path, og_type="website"):
 <title>{title}</title>
 <meta name="description" content="{desc}">
 
-<!-- PREVIEW ONLY — remove this line before the production launch. -->
-<meta name="robots" content="noindex, nofollow">
+{robots_meta}
 
 <link rel="canonical" href="{PROD_URL}/{canonical_path}">
 
@@ -334,10 +337,8 @@ def footer(current=None):
 
     <div class="footer-bottom">
       <p class="footer-meta">5151 California Ave STE 100, Irvine, CA 92617-3205 &middot; <a href="tel:{PHONE_TEL}">818-635-1777</a> &middot; <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a></p>
-      <p class="footer-endnote">&copy; 2026 Southwest Bancorp &middot; Website crafted by
-        <a href="https://starksocial.com" target="_blank" rel="noopener noreferrer"
-           title="Stark Social Media Agency (Santa Clarita/Los Angeles)">Stark Social</a>
-      </p>
+      <p class="footer-endnote">&copy;&nbsp;2026 Southwest&nbsp;Bancorp <span class="footer-endnote-sep">&middot;</span> <span class="footer-endnote-credit">Website&nbsp;crafted&nbsp;by <a href="https://starksocial.com" target="_blank" rel="noopener noreferrer"
+           title="Stark Social Media Agency (Santa Clarita/Los Angeles)">Stark&nbsp;Social</a></span></p>
     </div>
 
   </div>

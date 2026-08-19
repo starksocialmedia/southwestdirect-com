@@ -788,3 +788,62 @@ keeps everything Leaflet does contained inside the map. The button is also
 raised to 1000 as a backstop. Verified by hit-testing the button's centre point
 while the map genuinely overlaps it: the button wins at both 390px and 1200px.
 
+### 29. Launch prep
+
+**noindex removed** from the three content pages, which now carry
+`index, follow, max-image-preview:large`. **404.html keeps `noindex, nofollow`**
+deliberately — an error page should never be indexed, and GitHub Pages serves it
+with a real 404 status anyway.
+
+**Already in place before this pass,** from note 18: `sitemap.xml`,
+`robots.txt`, canonical URLs on every page, complete Open Graph and Twitter
+tags, apple-touch-icon, 192 and 512 icons, `site.webmanifest`, and unique meta
+descriptions (141 / 126 / 134 characters). What changed:
+
+* `sitemap.xml` — added `lastmod`, moved the legal pages to `changefreq monthly`
+  and `priority 0.5`.
+* `robots.txt` — added explicit allows for GPTBot, ChatGPT-User, ClaudeBot,
+  anthropic-ai, PerplexityBot, Google-Extended and CCBot.
+* `llms.txt` — new. Business summary, contact, licensing, services, exclusions
+  and the three page links.
+* `assets/og-image.jpg` — regenerated to include the portrait alongside the
+  branding, via `tools/build-social.py`.
+
+**Canonicals: index still points at `https://southwestdirect.com/`**, not
+`/index.html`. The brief asked for `/[page].html` throughout, but pointing the
+home page at `/index.html` would split it across two URLs and canonicalise to
+the weaker one. The legal pages do use their `.html` paths.
+
+**AI crawlers.** All seven are allowed, as asked. Worth being explicit about
+what that means: it permits both retrieval for answering questions *and* use of
+the content for model training. For a brochure site that wants to be found and
+quoted that is the right trade, but it is a decision, not a default —
+`Google-Extended` and `CCBot` in particular are training-oriented rather than
+search-oriented, and can be removed without affecting Google Search ranking.
+
+### 30. Footer credit wrap, and the map z-index on iOS
+
+**Credit wrap.** "Website crafted by Stark Social" is bound with non-breaking
+spaces and `white-space: nowrap` on its own span. Measured at 320, 360, 390,
+414, 421, 768 and 1440: the credit occupies exactly one line box at every width.
+Below 421px the copyright and the credit stack onto two lines and the middot
+between them is hidden, so it is not left dangling at the end of a line.
+
+**Map z-index.** The first two steps of the suggested checklist were already
+satisfied: the button is a direct child of `<body>`, and no ancestor carries a
+transform, filter or will-change. So the remaining suspect is compositing rather
+than stacking order.
+
+Leaflet promotes `.leaflet-map-pane` with `translate3d`, which puts it on the
+GPU. On WebKit a composited layer can paint over a *non-composited*
+`position: fixed` element whatever its z-index — which fits the symptom exactly,
+and explains why it reproduced on iPhone but not in Chrome.
+
+The button is now promoted to its own layer: `transform: translate3d(...)` in
+both states rather than `translateY`, plus `will-change: transform, opacity`.
+`z-index` raised to 9999 and the Leaflet container pinned to `z-index: 1`.
+
+**This is unverified on real iOS Safari.** There is no iOS device available
+here, and Chrome uses Blink, where the bug never reproduced. The fix targets the
+documented WebKit behaviour, but it needs a real iPhone to confirm.
+

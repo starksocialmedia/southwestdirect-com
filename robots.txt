@@ -1,10 +1,30 @@
 # southwestdirect.com
-# NOTE: while this build is a preview, every page also carries
-# <meta name="robots" content="noindex, nofollow">. That tag is what keeps the
-# preview out of search results — this file is written for launch, when the
-# noindex tags come out.
 
 User-agent: *
+Allow: /
+
+# AI crawlers, explicitly allowed. Allowing these means the site's content may
+# be used for training and for answering questions in AI assistants. That is a
+# deliberate choice for a brochure site whose goal is to be found and quoted.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
 Allow: /
 
 Sitemap: https://southwestdirect.com/sitemap.xml
