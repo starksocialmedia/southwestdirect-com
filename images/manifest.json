@@ -4,6 +4,7 @@
       1100,
       828
     ],
+    "label": "Automotive / Service Centers",
     "placeholder": false,
     "widths": [
       400,
@@ -11,11 +12,25 @@
       1100
     ]
   },
+  "california-band": {
+    "intrinsic": [
+      1920,
+      790
+    ],
+    "label": "California coastline",
+    "placeholder": false,
+    "widths": [
+      768,
+      1280,
+      1920
+    ]
+  },
   "industrial-warehouse": {
     "intrinsic": [
       1100,
       825
     ],
+    "label": "Industrial / Warehouse",
     "placeholder": false,
     "widths": [
       400,
@@ -28,6 +43,7 @@
       748,
       839
     ],
+    "label": "Portrait of Joffrey Long",
     "placeholder": false,
     "widths": [
       320,
@@ -40,6 +56,7 @@
       1100,
       828
     ],
+    "label": "Mixed Use Properties",
     "placeholder": false,
     "widths": [
       400,
@@ -52,6 +69,7 @@
       1100,
       732
     ],
+    "label": "Other Property Types",
     "placeholder": false,
     "widths": [
       400,
@@ -61,13 +79,15 @@
   },
   "residential-rental-property": {
     "intrinsic": [
-      750,
-      400
+      1100,
+      685
     ],
+    "label": "Residential Rental Property",
     "placeholder": false,
     "widths": [
       400,
-      750
+      750,
+      1100
     ]
   }
 }

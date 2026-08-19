@@ -96,7 +96,7 @@ Originals now live in `images/_src/`:
 | File | Source | Pixels |
 | --- | --- | --- |
 | `joffrey-long.png` | manifest `dee75825…` | 748 × 839 |
-| `Residential-Rental-Property.webp` | `ext_resources` → `ptRes` | 750 × 400 |
+| `Residential-Rental-Property.webp` | `ext_resources` → `ptRes` | 750 × 400 (rejected — see note 11) |
 | `Automotive-Service-Centers.webp` | `ptAuto` | 2560 × 1928 |
 | `Other-Property-Types.webp` | `ptOther` | 2122 × 1412 |
 | `Industrial-Warehouse.webp` | `ptInd` | 2560 × 1920 |
@@ -123,8 +123,10 @@ The page reads fine without it — contact now runs straight into the footer. Dr
 a licensed photo in and restore the band before launch.
 
 The bundled Design preview still contains this image (manifest `50bb048f…`,
-~2.4 MB JPEG). It was deliberately **not** extracted. That 320px band is the
-only reason our page is shorter than the approved design.
+~2.4 MB JPEG). It was deliberately **not** extracted.
+
+**The band itself is now back** (19 Aug 2026) — see note 12. Only its photograph
+is outstanding.
 
 ### 3. E-mail address — resolved
 
@@ -198,9 +200,11 @@ I will add it.
   more useful than a marginal saving while the design is still under review.
 - **The map** is an OpenStreetMap embed, carried over from the design. It costs
   nothing and needs no API key, unlike Google Maps.
-- **No JavaScript ships with this site.** The only `<script>` tag on any page is
-  the `application/ld+json` structured-data block, which is inert data. There is
-  no `.js` file in the repo.
+- **One small script ships.** `assets/js/site.js` (36 lines, deferred) drives the
+  back-to-top control and nothing else. Every other `<script>` tag on the pages is
+  the `application/ld+json` structured-data block, which is inert data. The site
+  still renders and navigates completely with JavaScript disabled — the button
+  simply never appears.
 
 ### 9. What the accessibility pass changed
 
@@ -273,3 +277,114 @@ trust-bar `·` separators and the terms-list `—` markers are drawn with CSS
 `aria-hidden` in the design, so this is equivalent — and it stops the separators
 from being counted as list items by screen readers. The geometry check confirms
 both sections match the design to the pixel.
+
+### 11. Residential Rental Property photo — fixed by v2
+
+In v1 this asset was **two unrelated photographs composited side by side** with a
+hard vertical seam; I had it rendering a "PHOTO PENDING" placeholder.
+
+**v2 replaces it.** The new asset (`ptRes`, 3,297,418 bytes, 5216 × 3248 JPEG) is
+a single coherent photograph of a gray two-story house with twin white garage
+doors. It is the only image whose content actually changed between v1 and v2.
+
+The placeholder is gone and `FORCE_PLACEHOLDER` is now empty. The source moved
+from `.webp` to `.jpg` in `images/_src/`, matching what v2 ships.
+
+Its alt text is now *"Two-story gray residential rental duplex with twin white
+garage doors."* The design's string still ends *"near the coast"*, which the new
+photograph does not show — alt has to describe the image that is actually there,
+so I trimmed it.
+
+### 12. The coastal band above the footer — built, with a caveat
+
+The band is a full-bleed 320px image with an `aria-hidden` gradient over its
+lower half — `linear-gradient(to bottom, rgba(30,42,94,0), rgba(30,42,94,0.55)
+60%, #1E2A5E)` — dissolving into the navy footer. Geometry, gradient stops and
+the `bottom: -1px` seam guard all match the design exactly. The gradient is drawn
+via `.california-band::after`.
+
+Photo: `images/_src/california-band.jpg`, derivatives at 768 / 1280 / 1920 in
+WebP and JPEG, served `100vw` through `<picture>` exactly like the property
+cards. `alt=""` — the band is decorative, so screen readers skip it.
+
+**Caveat worth re-reading.** The photo is `~/Downloads/Firefly (1).jpg`, which is
+**byte-identical** (sha256 `ecbf78e4a6c4…`, 4800 × 1976) to the band image
+embedded in *both* the v1 and v2 bundles — the same file pulled on 19 Aug as "an
+AI-generated illustration that shouldn't ship." It was later reinstated on the
+understanding that it is a Firefly-*enhanced photograph* rather than generated
+art, and that it is a different file. It is not a different file. Nathan asked
+for it twice with its dimensions quoted correctly, so it ships — but if the
+no-AI-imagery rule still applies to this asset, this is the thing to revisit.
+
+### 13. Back to top
+
+A floating control, on every page. `assets/js/site.js` adds a single class once
+`window.scrollY` passes one viewport height; everything else is CSS.
+
+- 48px navy square with a 4px radius and a 1px `rgba(250,250,247,0.3)` border,
+  matching v2's treatment; cream up-arrow drawn as inline SVG (v2 used a bare `↑`
+  text glyph, which renders inconsistently across fonts)
+- `right`/`bottom: calc(20px + env(safe-area-inset-*))` — v2 specifies 20px, and
+  `env()` keeps it clear of the iOS home indicator
+- `<button type="button" aria-label="Back to top">`, with the SVG marked
+  `aria-hidden` and `focusable="false"`
+- Hidden with `visibility: hidden`, which also takes it out of the tab order —
+  verified: it is not focusable until it appears
+- Smooth scroll, or instant under `prefers-reduced-motion`; the fade/slide
+  transition is also disabled there
+- On click, focus moves to the brand link at the top of the page, so a keyboard
+  user is not dropped on `<body>` when the button hides
+- Focus ring is a cream outline inside a navy halo, so it stays visible whether
+  the button is floating over the cream page or the navy footer
+- `@media print { display: none !important; }`
+
+Measured contrast: cream icon on navy 12.97:1, the button's edge ring against the
+navy footer 4.98:1, navy fill against the cream page 12.97:1 — all well past the
+3:1 that WCAG 1.4.11 asks of non-text UI.
+
+### 14. v2 integration (19 Aug 2026)
+
+Diffed the v1 and v2 bundles at template level. Most of the raw diff is noise —
+every embedded font file got a fresh UUID on re-export. Filtering that out leaves
+a 30-added / 4-removed line diff against 272 lines of markup.
+
+**Unchanged between v1 and v2:** all 12 sections, all 17 headings, every line of
+body copy, every colour, every font size, and the entire layout. No restructuring.
+
+**Genuinely new in v2:**
+
+1. **Mobile navigation** (the headline change) — below 820px the desktop nav is
+   replaced by a compact "Call / Text" button plus a 44 × 44 toggle, opening a
+   full-height navy panel with 28px serif links, a call CTA and a credentials
+   line.
+2. **A back-to-top control** — which I had already built to Nathan's spec the day
+   before. Retuned to v2's visual treatment; see note 13.
+3. **A new Residential Rental Property photo** — see note 11. The only image whose
+   content changed; the portrait and coastal band got new UUIDs but identical
+   bytes.
+
+**Accessibility work added on top of v2's mobile menu.** The design's markup gets
+the basics right — `aria-expanded`, `aria-controls`, a labelled toggle, a real
+`<button>` — but a full-screen panel needs more than that, so this build adds:
+
+- a focus trap, so Tab cycles inside the panel instead of reaching the page
+  underneath it (verified: the cycle wraps through all five links, the CTA and the
+  toggle)
+- `Escape` to close, returning focus to the toggle
+- focus moved to the first link on open
+- `overflow: hidden` on the root while open, so the page behind does not scroll
+- the breakpoint swap done in **CSS**, not JS state as the design does it, so the
+  right header renders before any script runs
+- the toggle revealed only once a `js` class is set on `<html>`, so with
+  JavaScript disabled there is no dead control — mobile users just get the call
+  button
+
+Panel height is `calc(100dvh - 100%)`, where `100%` resolves to the header's own
+height. That avoids the design's hardcoded `100vh - 75px` and stays correct as
+mobile browser chrome collapses. Measured at 390 × 760: header 130 + panel 630 =
+760 exactly.
+
+Contrast re-checked on every new element — nine pairs, all passing, worst case
+4.27:1 on the gold link hover, which clears the 3:1 that 28px semibold needs.
+Reflow re-checked across 29 width/page combinations from 320px to 1440px,
+including with the menu open. No horizontal scrolling anywhere.

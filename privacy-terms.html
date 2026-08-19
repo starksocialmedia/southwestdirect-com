@@ -39,6 +39,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/site.css">
+<script>document.documentElement.classList.add("js");</script>
 
 <script type="application/ld+json">
 {
@@ -92,6 +93,7 @@
       <span class="brand-name">Joffrey Long</span>
       <span class="brand-domain">SouthwestDirect.com</span>
     </a>
+
     <nav class="main-nav" aria-label="Main">
       <a class="nav-link" href="index.html#how-it-works">How it works</a>
       <a class="nav-link" href="index.html#property-types">Property types</a>
@@ -100,7 +102,37 @@
       <a class="nav-link" href="index.html#contact">Contact</a>
       <a class="btn-primary btn-nav" href="tel:+18186351777">Call or Text (818) 635-1777</a>
     </nav>
+
+    <div class="mobile-controls">
+      <a class="btn-primary btn-call-compact" href="tel:+18186351777"
+         aria-label="Call or text (818) 635-1777">Call / Text</a>
+      <button type="button" class="nav-toggle" aria-expanded="false"
+              aria-controls="mobile-menu" aria-label="Open menu">
+        <svg class="icon-open" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M3 5h14M3 10h14M3 15h14" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <svg class="icon-close" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M4 4l12 12M16 4L4 16" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
   </div>
+
+  <nav id="mobile-menu" class="mobile-menu" aria-label="Page sections" hidden>
+    <div class="mobile-menu-links">
+        <a href="index.html#how-it-works">How it works</a>
+        <a href="index.html#property-types">Property types</a>
+        <a href="index.html#brokers">Loan brokers</a>
+        <a href="index.html#about">About</a>
+        <a href="index.html#contact">Contact</a>
+    </div>
+    <div class="mobile-menu-foot">
+      <a class="btn-primary" href="tel:+18186351777">Call or Text (818) 635-1777</a>
+      <p class="mobile-menu-note">43 years &middot; Direct lender &middot; DRE #00898122 &middot; NMLS #285731</p>
+    </div>
+  </nav>
 </header>
 
 <main id="main">
@@ -288,5 +320,13 @@
     <p class="footer-meta">5151 California Ave STE 100, Irvine, CA 92617-3205 &middot; <a href="tel:+18186351777">818-635-1777</a> &middot; <a href="mailto:info@asksw.com">info@asksw.com</a></p>
   </div>
 </footer>
+
+<button type="button" class="back-to-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+    <path d="M12 19V6M6 12l6-6 6 6" fill="none" stroke="currentColor"
+          stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+<script src="assets/js/site.js" defer></script>
 </body>
 </html>

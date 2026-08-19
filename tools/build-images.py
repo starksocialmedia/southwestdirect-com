@@ -25,7 +25,7 @@ SPEC = {
     "joffrey-long": (
         "joffrey-long.png", [320, 640, 748], (748, 839), "Portrait of Joffrey Long"),
     "residential-rental-property": (
-        "Residential-Rental-Property.webp", [400, 750, 1100], (750, 400), "Residential Rental Property"),
+        "Residential-Rental-Property.jpg", [400, 750, 1100], (750, 400), "Residential Rental Property"),
     "automotive-service-centers": (
         "Automotive-Service-Centers.webp", [400, 750, 1100], (750, 400), "Automotive / Service Centers"),
     "mixed-use": (
@@ -34,6 +34,18 @@ SPEC = {
         "Industrial-Warehouse.webp", [400, 750, 1100], (750, 400), "Industrial / Warehouse"),
     "other-property-types": (
         "Other-Property-Types.webp", [400, 750, 1100], (750, 400), "Other Property Types"),
+    # Full-bleed coastal band that sits between the contact section and the footer.
+    # The design's own asset for this was an AI illustration and was pulled, so this
+    # placeholders until a licensed photo lands in images/_src/.
+    "california-band": (
+        "california-band.jpg", [768, 1280, 1920], (1920, 320), "California coastline"),
+}
+
+# Slugs that must render a "PHOTO PENDING" placeholder even though a source file
+# exists, because the source itself is unusable. Remove the entry and drop the
+# real photo into images/_src/ to restore it.
+FORCE_PLACEHOLDER = {
+    # (empty) — v2 of the design replaced the broken Residential photo.
 }
 
 
@@ -62,7 +74,9 @@ def placeholder(w, h, label):
     for x in range(-h, w + h, step * 2):          # diagonal hatch
         d.line([(x, 0), (x + h, h)], fill=(229, 225, 216), width=step)
     try:
-        size = max(15, w // 26)
+        # Scale off the smaller dimension so a short, very wide band does not
+        # get billboard-sized lettering.
+        size = max(15, min(w, h * 2) // 26)
         font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", size)
         small = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", max(12, size - 6))
     except Exception:
@@ -79,9 +93,15 @@ def main():
     made, placeheld, manifest = 0, [], {}
     for slug, (fname, widths, ph_size, label) in SPEC.items():
         print(f"  {slug}")
-        im = load(os.path.join(SRC, fname))
-        if im is None:
-            print(f"    -> PLACEHOLDER (source '{fname}' missing or truncated)")
+        if slug in FORCE_PLACEHOLDER:
+            print(f"    -> PLACEHOLDER (forced): {FORCE_PLACEHOLDER[slug]}")
+            im = None
+        else:
+            im = load(os.path.join(SRC, fname))
+        is_placeholder = im is None
+        if is_placeholder:
+            if slug not in FORCE_PLACEHOLDER:
+                print(f"    -> PLACEHOLDER (source '{fname}' missing or truncated)")
             im = placeholder(*ph_size, label)
             placeheld.append((slug, fname))
         built = []
@@ -99,7 +119,8 @@ def main():
         manifest[slug] = {
             "widths":      [w for w, _ in built],
             "intrinsic":   built[-1] if built else list(ph_size),
-            "placeholder": im is None or slug in [s for s, _ in placeheld],
+            "placeholder": is_placeholder,
+            "label":       label,
         }
     with open(os.path.join(OUT, "manifest.json"), "w") as f:
         json.dump(manifest, f, indent=2, sort_keys=True)

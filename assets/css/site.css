@@ -335,3 +335,124 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 /* Legal-page lead note and closing line */
 .prose .lead { font-size: 17px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 32px; }
 .prose .closing { margin: 44px 0 0; padding-top: 24px; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: 15px; }
+
+/* --- California coastal band ------------------------------------------- */
+/* Matches the design: a 320px full-bleed photo with an aria-hidden navy
+   gradient over its lower half, dissolving into the footer beneath it. */
+.california-band { position: relative; }
+.band-img { display: block; width: 100%; height: 320px; object-fit: cover; }
+.california-band::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: -1px; height: 160px;
+  background: linear-gradient(to bottom,
+              rgba(30, 42, 94, 0) 0%,
+              rgba(30, 42, 94, 0.55) 60%,
+              var(--navy) 100%);
+  pointer-events: none;
+}
+
+/* --- Back to top -------------------------------------------------------- */
+.back-to-top {
+  position: fixed;
+  /* v2 design places it at 20px; env() keeps it clear of the iOS home bar. */
+  right: calc(20px + env(safe-area-inset-right, 0px));
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  z-index: 60;
+  width: 48px; height: 48px;
+  display: grid; place-items: center;
+  padding: 0;
+  background: var(--navy);
+  color: var(--cream);
+  border: 1px solid rgba(250, 250, 247, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  /* The 2px light ring keeps the button's edge visible when it floats over the
+     navy footer; over the cream page the navy fill itself provides the edge. */
+  box-shadow: 0 2px 10px rgba(30, 42, 94, 0.3);
+  opacity: 0;
+  visibility: hidden;            /* also keeps it out of the tab order when hidden */
+  transform: translateY(8px);
+  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s, background-color 0.2s ease;
+}
+.back-to-top.is-visible { opacity: 1; visibility: visible; transform: none; }
+.back-to-top:hover { background: var(--navy-deep); color: var(--cream); }
+/* Dual ring: cream reads against the navy footer, navy against the cream page. */
+.back-to-top:focus-visible {
+  outline: 3px solid var(--cream);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 7px var(--navy), 0 2px 10px rgba(30, 42, 94, 0.3);
+}
+.back-to-top svg { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top { transition: none; transform: none; }
+}
+
+@media print {
+  .back-to-top { display: none !important; }
+}
+
+/* --- Mobile navigation (v2) ---------------------------------------------
+   The design swaps the desktop nav for a compact call button + menu toggle at
+   max-width 819px. Here that swap is done in CSS rather than with JS state, so
+   the correct header renders before any script runs.
+   ------------------------------------------------------------------------ */
+.mobile-controls { display: none; align-items: center; gap: 10px; }
+.btn-call-compact { font-size: 14px; padding: 12px 16px; }
+
+.nav-toggle {
+  display: none;                    /* only shown once .js confirms JS is live */
+  background: var(--navy); border: none; border-radius: 4px;
+  color: var(--cream); width: 44px; height: 44px;
+  align-items: center; justify-content: center; cursor: pointer; padding: 0;
+}
+.nav-toggle:hover { background: var(--navy-deep); }
+.nav-toggle svg { display: block; }
+
+.mobile-menu {
+  position: absolute; top: 100%; left: 0; right: 0;
+  /* 100% resolves to the header's height, so the panel always fills exactly the
+     rest of the viewport without hardcoding a header height. dvh keeps it right
+     while mobile browser chrome collapses. */
+  height: calc(100vh - 100%);
+  height: calc(100dvh - 100%);
+  z-index: 49;
+  background: var(--navy);
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 32px 24px 28px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.mobile-menu[hidden] { display: none; }
+.mobile-menu-links { display: flex; flex-direction: column; }
+.mobile-menu-links a {
+  color: var(--cream); text-decoration: none;
+  font-family: var(--serif); font-size: 28px; font-weight: 600;
+  padding: 16px 4px; border-bottom: 1px solid rgba(250, 250, 247, 0.15);
+}
+.mobile-menu-links a:last-child { border-bottom: none; }
+.mobile-menu-links a:hover { color: var(--gold); }
+.mobile-menu-foot { display: flex; flex-direction: column; gap: 14px; padding-top: 28px; }
+.mobile-menu-foot .btn-primary { font-size: 17px; padding: 16px 18px; text-align: center; }
+.mobile-menu-note {
+  margin: 0; text-align: center; font-size: 13px;
+  letter-spacing: 0.06em; color: var(--lavender-dim);
+}
+
+@media (max-width: 819px) {
+  .main-nav { display: none; }
+  .mobile-controls { display: flex; }
+  html.js .nav-toggle { display: inline-flex; }
+}
+
+/* Freeze the page behind the open panel. */
+html.menu-open, html.menu-open body { overflow: hidden; }
+
+@media print {
+  .mobile-controls, .mobile-menu { display: none !important; }
+}
+
+/* Toggle icon swap is driven by aria-expanded, so state lives in one place. */
+.nav-toggle .icon-close { display: none; }
+.nav-toggle[aria-expanded="true"] .icon-open { display: none; }
+.nav-toggle[aria-expanded="true"] .icon-close { display: block; }

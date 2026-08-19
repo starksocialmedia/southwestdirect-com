@@ -85,6 +85,10 @@ def picture(slug, cls, alt, sizes, indent, lazy=True, priority=False):
     ws = m["widths"]
     w, h = m["intrinsic"]
     pad = " " * indent
+    # A placeholder must not inherit the design's alt text, or a screen reader
+    # would hear a description of a photograph that is not on the page.
+    if m.get("placeholder"):
+        alt = "Photo pending: " + m.get("label", "image")
     webp = ", ".join(f"images/{slug}-{x}.webp {x}w" for x in ws)
     jpg = ", ".join(f"images/{slug}-{x}.jpg {x}w" for x in ws)
     # <img src> is only used by browsers without srcset support, so point it at a
@@ -144,12 +148,19 @@ def head(title, desc, page_path, og_type="website"):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/site.css">
+<script>document.documentElement.classList.add("js");</script>
 
 {JSONLD}'''
 
 
 def header(prefix=""):
     """prefix is '' on the landing page, 'index.html' on the legal pages."""
+    links = [("How it works", "#how-it-works"), ("Property types", "#property-types"),
+             ("Loan brokers", "#brokers"), ("About", "#about"), ("Contact", "#contact")]
+    desktop = "\n".join(
+        f'      <a class="nav-link" href="{prefix}{h}">{t}</a>' for t, h in links)
+    mobile = "\n".join(
+        f'        <a href="{prefix}{h}">{t}</a>' for t, h in links)
     return f'''<a class="skip-link" href="#main">Skip to main content</a>
 
 <header class="site-header">
@@ -158,17 +169,39 @@ def header(prefix=""):
       <span class="brand-name">Joffrey Long</span>
       <span class="brand-domain">SouthwestDirect.com</span>
     </a>
+
     <nav class="main-nav" aria-label="Main">
-      <a class="nav-link" href="{prefix}#how-it-works">How it works</a>
-      <a class="nav-link" href="{prefix}#property-types">Property types</a>
-      <a class="nav-link" href="{prefix}#brokers">Loan brokers</a>
-      <a class="nav-link" href="{prefix}#about">About</a>
-      <a class="nav-link" href="{prefix}#contact">Contact</a>
+{desktop}
       <a class="btn-primary btn-nav" href="tel:{PHONE_TEL}">Call or Text {PHONE_DISPLAY}</a>
     </nav>
-  </div>
-</header>'''
 
+    <div class="mobile-controls">
+      <a class="btn-primary btn-call-compact" href="tel:{PHONE_TEL}"
+         aria-label="Call or text {PHONE_DISPLAY}">Call / Text</a>
+      <button type="button" class="nav-toggle" aria-expanded="false"
+              aria-controls="mobile-menu" aria-label="Open menu">
+        <svg class="icon-open" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M3 5h14M3 10h14M3 15h14" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <svg class="icon-close" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M4 4l12 12M16 4L4 16" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <nav id="mobile-menu" class="mobile-menu" aria-label="Page sections" hidden>
+    <div class="mobile-menu-links">
+{mobile}
+    </div>
+    <div class="mobile-menu-foot">
+      <a class="btn-primary" href="tel:{PHONE_TEL}">Call or Text {PHONE_DISPLAY}</a>
+      <p class="mobile-menu-note">43 years &middot; Direct lender &middot; DRE #00898122 &middot; NMLS #285731</p>
+    </div>
+  </nav>
+</header>'''
 
 def contact():
     return f'''<section id="contact" class="wrap contact" aria-labelledby="contact-h">
@@ -225,6 +258,13 @@ def footer(current=None):
 </footer>'''
 
 
+BACK_TO_TOP = """<button type="button" class="back-to-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+    <path d="M12 19V6M6 12l6-6 6 6" fill="none" stroke="currentColor"
+          stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>"""
+
 def page(title, desc, path, body, current=None, prefix=""):
     return f'''<!DOCTYPE html>
 <html lang="en">
@@ -237,6 +277,9 @@ def page(title, desc, path, body, current=None, prefix=""):
 {body}
 
 {footer(current)}
+
+{BACK_TO_TOP}
+<script src="assets/js/site.js" defer></script>
 </body>
 </html>
 '''
@@ -249,7 +292,7 @@ CARD_SIZES = "(min-width: 1168px) 341px, (min-width: 700px) 31vw, 92vw"
 
 PROPERTY_TYPES = [
     ("residential-rental-property", "Residential Rental Property", "1–4 units or 5–15 units",
-     "Two-story gray residential rental duplex with garage, near the coast",
+     "Two-story gray residential rental duplex with twin white garage doors",
      ["Credit and income problems OK", "Damaged, incomplete properties",
       "Low rents, problem properties", "Non-confirming, zoning issues", "Purchase or cash out"]),
     ("automotive-service-centers", "Automotive / Service Centers", "",
@@ -464,14 +507,15 @@ INDEX_BODY = f'''<main id="main">
 
   {contact()}
 
-  <!-- ======================================================================
-       Real photo needed here — do not use AI illustration.
-       The approved design had a full-bleed California coastline band between
-       the contact section and the footer. The source file for it
-       (uploads/Firefly (1).jpg) is an AI-generated illustration and was
-       pulled at Nathan's request on 2026-08-19. Drop a real licensed photo
-       in and restore the band before launch.
-       ====================================================================== -->
+  <!-- CALIFORNIA BAND -->
+  <!-- Photo pending: the design's asset for this band was an AI illustration and
+       was pulled on 19 Aug 2026. Drop a licensed coastal photo at
+       images/_src/california-band.jpg and re-run tools/build-images.py. The
+       navy gradient that dissolves into the footer is drawn in CSS and is
+       already correct. -->
+  <div class="california-band">
+{picture("california-band", "band-img", "", "100vw", 4)}
+  </div>
 
 </main>'''
 
