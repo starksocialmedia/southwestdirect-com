@@ -704,12 +704,19 @@ html.menu-open, html.menu-open body { overflow: hidden; }
 }
 .footer-endnote { margin: 0; font-size: 13px; color: var(--lavender-dim); }
 .footer-endnote-credit { display: inline-block; white-space: nowrap; }
-@media (max-width: 420px) {
-  /* At phone widths the two halves stack, so the middot between them would be
-     left dangling at the end of the first line. */
+/* Below 700px the attribution always takes its own full-width line rather than
+   sharing one with the copyright. Sharing it meant that between roughly 421 and
+   500px the line wrapped mid-phrase and left the separating middot stranded at
+   the end of the first line. Given its own line it can never wrap, and the
+   separator is dropped because there is nothing left to separate. */
+@media (max-width: 699px) {
+  .footer-bottom { flex-direction: column; align-items: flex-start; gap: 6px; }
   .footer-endnote { font-size: 12px; }
   .footer-endnote-sep { display: none; }
-  .footer-endnote-credit { display: block; }
+  .footer-endnote-credit {
+    display: block; width: 100%; margin-top: 3px;
+    font-size: 11.5px; white-space: nowrap;
+  }
 }
 .footer-endnote a { color: var(--lavender); text-decoration: underline; text-underline-offset: 3px; }
 .footer-endnote a:hover { color: var(--cream); }

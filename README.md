@@ -847,3 +847,25 @@ both states rather than `translateY`, plus `will-change: transform, opacity`.
 here, and Chrome uses Blink, where the bug never reproduced. The fix targets the
 documented WebKit behaviour, but it needs a real iPhone to confirm.
 
+### 31. Footer credit wrap — the actual cause
+
+The previous attempt bound the phrase with non-breaking spaces and `nowrap`,
+which did keep it intact, and measuring the credit span alone showed one line.
+That measurement was true and still missed the bug, because the break was not
+inside the phrase.
+
+The mobile rule was scoped to `max-width: 420px`. Between **421px and about
+500px** the credit was back to `inline-block`, sharing a line with the
+copyright, and the pair together overflowed the row — so the credit wrapped to a
+second line and left the separating middot stranded at the end of the first.
+That is the awkward break, and it sat just above the widths I had been checking.
+
+Now, below **700px**, the bottom row stacks and the attribution takes its own
+full-width line at 11.5px, with the separator removed since there is nothing
+left to separate. It cannot wrap because it can never share a line.
+
+Verified by measuring rendered line boxes, not by eye: exactly one line box at
+320, 360, 375, 390 and 414 on **all three pages**, and at 421, 450, 500 and 699
+on the landing page — the band that was previously broken. From 700px up the
+row returns to a single line with the separator, unchanged.
+
