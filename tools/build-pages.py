@@ -274,7 +274,7 @@ def contact():
     </div>
     <div class="contact-map">
       <a class="map-link" href="https://www.openstreetmap.org/?mlat=33.64074&amp;mlon=-117.85386#map=17/33.64074/-117.85386"
-         target="_blank" rel="noopener">
+         target="_blank" rel="noopener" title="Open this location in OpenStreetMap">
 {picture("office-map", "map-img", "Map showing the office at 5151 California Ave STE 100, Irvine, California", "(min-width: 960px) 520px, 92vw", 8)}
         <span class="visually-hidden"> (opens OpenStreetMap in a new tab)</span>
       </a>
@@ -296,7 +296,7 @@ def footer(current=None):
       </nav>
     </div>
     <div class="footer-disclosures">
-      <p>Loans are primarily made (funded) and serviced by Southwest Bancorp under Calif. Dept of Real Estate Broker License no. 00898122. (<a href="https://www.dre.ca.gov">www.DRE.CA.gov</a>) Joffrey Long holds Calif. Dept. of Real Estate Broker License no. 00525142. Loans may also be arranged with entities owned by Southwest Bancorp or its owners, or with third party lenders.</p>
+      <p>Loans are primarily made (funded) and serviced by Southwest Bancorp under Calif. Dept of Real Estate Broker License no. 00898122. (<a href="https://www.dre.ca.gov" title="California Department of Real Estate — licence lookup">www.DRE.CA.gov</a>) Joffrey Long holds Calif. Dept. of Real Estate Broker License no. 00525142. Loans may also be arranged with entities owned by Southwest Bancorp or its owners, or with third party lenders.</p>
       <p>Investments in trust deeds secured by one or more interests in real property are subject to risk of loss. Southwest Bancorp does not make (fund) consumer purpose loans that are secured by 1-4 family residences. Those loans may be arranged with institutional lenders, under NMLS Identifier No. 285731 (Southwest Bancorp) and No. 207202 (Joffrey Long).</p>
     </div>
     <p class="footer-meta">5151 California Ave STE 100, Irvine, CA 92617-3205 &middot; <a href="tel:{PHONE_TEL}">818-635-1777</a> &middot; <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a></p>
@@ -630,7 +630,7 @@ A11Y_BODY = f'''<main id="main">
     <p>While we work to ensure our own content meets accessibility standards, we cannot guarantee the accessibility of third-party content or services linked from this site (for example, external regulatory websites such as www.DRE.CA.gov). If you encounter accessibility barriers on linked sites, we encourage you to contact those providers directly.</p>
 
     <h2 id="complaints">Formal Complaints</h2>
-    <p>If you are not satisfied with our response to an accessibility concern, you may file a complaint with the U.S. Department of Justice, Civil Rights Division, at <a href="https://www.ada.gov">ada.gov</a> or by calling <a href="tel:+18005140301">(800) 514-0301</a>.</p>
+    <p>If you are not satisfied with our response to an accessibility concern, you may file a complaint with the U.S. Department of Justice, Civil Rights Division, at <a href="https://www.ada.gov" title="U.S. Department of Justice — ADA information">ada.gov</a> or by calling <a href="tel:+18005140301">(800) 514-0301</a>.</p>
   </div>
 
   {contact()}
@@ -718,7 +718,7 @@ PRIVACY_BODY = f'''<main id="main">
       <li><strong>Southwest Bancorp:</strong> California DRE Broker License No. 00898122; NMLS ID No. 285731</li>
       <li><strong>Joffrey Long:</strong> California DRE Broker License No. 00525142; NMLS ID No. 207202</li>
     </ul>
-    <p>Our license status may be verified at <a href="https://www.DRE.CA.gov">www.DRE.CA.gov</a> and <a href="https://www.nmlsconsumeraccess.org">www.nmlsconsumeraccess.org</a>.</p>
+    <p>Our license status may be verified at <a href="https://www.DRE.CA.gov" title="California Department of Real Estate — licence lookup">www.DRE.CA.gov</a> and <a href="https://www.nmlsconsumeraccess.org" title="NMLS Consumer Access — licence lookup">www.nmlsconsumeraccess.org</a>.</p>
 
     <h3>Nature of Information Provided</h3>
     <p>The information on this Site is provided for general informational purposes only. It is not, and should not be relied upon as:</p>
