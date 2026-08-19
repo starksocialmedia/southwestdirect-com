@@ -177,9 +177,7 @@ def header(prefix=""):
         f'      <a class="nav-link" href="{prefix}{h}">{t}</a>' for t, h in links)
     drawer_links = "\n".join(
         f'      <a href="{prefix}{h}">{t}</a>' for t, h in links)
-    return f'''<a class="skip-link" href="#main">Skip to main content</a>
-
-<header class="site-header">
+    return f'''<header class="site-header">
   <div class="header-inner">
     <a class="brand" href="index.html">
       <span class="brand-name">Joffrey Long</span>
@@ -261,6 +259,13 @@ def contact():
         <div>
           <dt class="contact-dt">Email</dt>
           <dd class="contact-dd"><a class="contact-email" href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a></dd>
+        </div>
+        <div>
+          <dt class="contact-dt">Save my contact info</dt>
+          <dd class="contact-dd">
+            <a class="link-vcard" href="assets/joffrey-long.vcf" download="joffrey-long.vcf"
+               aria-label="Download Joffrey Long&#39;s contact info as a vCard file">Download vCard</a>
+          </dd>
         </div>
         <div>
           <dt class="contact-dt">Office</dt>
@@ -380,7 +385,7 @@ def card(slug, title, note, alt, bullets):
 CARDS = "\n".join(card(*pt) for pt in PROPERTY_TYPES)
 
 # --------------------------------------------------------------------------
-INDEX_BODY = f'''<main id="main">
+INDEX_BODY = f'''<main>
 
   <!-- HERO -->
   <section class="hero" aria-labelledby="hero-h">
@@ -570,7 +575,7 @@ INDEX_BODY = f'''<main id="main">
 </main>'''
 
 
-A11Y_BODY = f'''<main id="main">
+A11Y_BODY = f'''<main>
   <div class="page-head">
     <div class="page-head-inner">
       <h1 class="page-title">Accessibility Statement</h1>
@@ -637,7 +642,7 @@ A11Y_BODY = f'''<main id="main">
 </main>'''
 
 
-PRIVACY_BODY = f'''<main id="main">
+PRIVACY_BODY = f'''<main>
   <div class="page-head">
     <div class="page-head-inner">
       <h1 class="page-title">Privacy Policy &amp; Terms of Service</h1>
@@ -777,7 +782,7 @@ PRIVACY_BODY = f'''<main id="main">
 </main>'''
 
 
-NOTFOUND_BODY = f'''<main id="main">
+NOTFOUND_BODY = f'''<main>
   <div class="page-head">
     <div class="page-head-inner">
       <p class="eyebrow">Error 404</p>

@@ -26,6 +26,7 @@
      i.e. 1168px outer. This build is border-box, so the token is the outer
      width and the content column comes out at 1120px, matching the design. */
   --wrap:  1168px;
+  --dl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3v12M7 11l5 5 5-5M4 21h16'/%3E%3C/svg%3E");
   --header-h: 84px;
 }
 
@@ -74,27 +75,6 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
-}
-
-/* --- Skip link ---------------------------------------------------------- */
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  z-index: 100;
-  background: var(--navy);
-  color: var(--cream);
-  padding: 10px 18px;
-  font-weight: 600;
-  text-decoration: none;
-}
-.skip-link:focus,
-.skip-link:focus-visible {
-  left: 12px;
-  top: 12px;
-  color: var(--cream);
-  outline: 3px solid var(--cream);
-  outline-offset: 2px;
 }
 
 /* --- Layout helpers ----------------------------------------------------- */
@@ -267,6 +247,20 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 .contact-email { font-size: 18px; font-weight: 600; color: var(--navy); text-decoration: underline; text-underline-offset: 4px; }
 .contact-email:hover { color: var(--brown); }
 .contact-address { font-size: 16px; line-height: 1.6; color: var(--ink); }
+/* Deliberately quieter than the phone and e-mail above it: this is a third
+   option, not a call to action. */
+.link-vcard {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 15px; font-weight: 600; color: var(--brown);
+  text-decoration: underline; text-underline-offset: 4px;
+}
+.link-vcard:hover { color: var(--navy); }
+.link-vcard::before {
+  content: ""; flex: none; width: 13px; height: 13px;
+  background: currentColor;
+  -webkit-mask: var(--dl-icon) center / contain no-repeat;
+  mask: var(--dl-icon) center / contain no-repeat;
+}
 .contact-map { flex: 1 1 420px; min-width: min(300px, 100%); }
 .map-note { margin: 10px 0 0; font-size: 13px; color: var(--ink-soft); }
 
@@ -589,7 +583,7 @@ html.menu-open, html.menu-open body { overflow: hidden; }
 /* --- Print --------------------------------------------------------------- */
 @media print {
   /* Interactive chrome carries no meaning on paper. */
-  .site-header, .skip-link, .back-to-top, .drawer, .drawer-backdrop,
+  .site-header, .back-to-top, .drawer, .drawer-backdrop,
   .mobile-controls, .main-nav, .footer-legal-nav, .footer-credit,
   .california-band, .contact-map { display: none !important; }
 
