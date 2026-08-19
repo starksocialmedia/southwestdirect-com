@@ -265,7 +265,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 
 /* --- Footer ------------------------------------------------------------- */
 .site-footer { background: var(--navy); }
-.footer-inner { max-width: var(--wrap); margin: 0 auto; padding: 56px 24px 40px; display: flex; flex-direction: column; gap: 32px; }
+.footer-inner { max-width: var(--wrap); margin: 0 auto; padding: 40px 24px 28px; display: flex; flex-direction: column; gap: 22px; }
 .footer-top { display: flex; justify-content: space-between; gap: 32px; flex-wrap: wrap; align-items: baseline; }
 .footer-brand { margin: 0; font-family: var(--serif); font-size: 19px; font-weight: 700; color: var(--cream); }
 .footer-legal-nav { display: flex; gap: 24px; flex-wrap: wrap; }
@@ -273,9 +273,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 .footer-legal-nav a:hover { color: var(--cream); }
 .footer-legal-nav a[aria-current="page"] { color: var(--cream); font-weight: 700; }
 .footer-disclosures {
-  display: flex; flex-direction: column; gap: 14px;
-  font-size: 13px; line-height: 1.7; color: var(--lavender); max-width: 90ch;
-  border-top: 1px solid rgba(250, 250, 247, 0.18); padding-top: 28px;
+  display: flex; flex-direction: column; gap: 12px;
+  font-size: 13px; line-height: 1.6; color: var(--lavender);
 }
 .footer-disclosures p { margin: 0; text-wrap: pretty; }
 .footer-disclosures a { color: var(--cream); }
@@ -569,21 +568,13 @@ html.menu-open, html.menu-open body { overflow: hidden; }
 }
 
 /* --- Footer credit ------------------------------------------------------- */
-.footer-credit {
-  margin: 4px 0 0; text-align: center;
-  font-size: 12px; letter-spacing: 0.02em; color: var(--lavender-dim);
-}
-.footer-credit a { color: var(--lavender); text-decoration: underline; text-underline-offset: 3px; }
-.footer-credit a:hover { color: var(--cream); }
-@media (min-width: 700px) {
-  .footer-credit { text-align: right; }
-}
+
 
 /* --- Print --------------------------------------------------------------- */
 @media print {
   /* Interactive chrome carries no meaning on paper. */
   .site-header, .back-to-top, .drawer, .drawer-backdrop,
-  .mobile-controls, .main-nav, .footer-legal-nav, .footer-credit,
+  .mobile-controls, .main-nav, .footer-legal-nav,
   .california-band, .contact-map { display: none !important; }
 
   html, body { background: #fff !important; color: #000 !important; }
@@ -669,16 +660,29 @@ html.menu-open, html.menu-open body { overflow: hidden; }
 @media print { .map-canvas { display: none !important; } }
 
 /* --- Footer licensing ---------------------------------------------------- */
+/* Row 2: credentials on the left, disclosures filling the right so the column
+   is no longer dead space. Collapses to one column when the footer narrows. */
+.footer-mid {
+  display: grid; gap: 20px 48px;
+  padding-top: 22px; border-top: 1px solid rgba(250, 250, 247, 0.18);
+}
+@media (min-width: 720px) {
+  .footer-mid { grid-template-columns: minmax(210px, 0.75fr) 1.65fr; }
+}
 .footer-licensing {
-  display: grid; gap: 8px 48px;
-  padding-top: 26px; border-top: 1px solid rgba(250, 250, 247, 0.18);
-  font-size: 14px; line-height: 1.55; color: var(--lavender-dim);
+  display: flex; flex-direction: column; gap: 14px;
+  font-size: 14px; line-height: 1.5; color: var(--lavender-dim);
 }
 .footer-lic p { margin: 0; }
 .footer-lic-name { color: var(--lavender); font-weight: 700; }
-.footer-eol { margin: 6px 0 0; font-style: italic; color: var(--lavender); }
-@media (min-width: 700px) {
-  .footer-licensing { grid-template-columns: 1fr 1fr; }
-  .footer-eol { grid-column: 1 / -1; }
+.footer-eol { margin: 0; font-style: italic; color: var(--lavender); }
+
+/* Row 3: contact left, copyright and credit right, on one line where it fits. */
+.footer-bottom {
+  display: flex; flex-wrap: wrap; gap: 8px 32px;
+  justify-content: space-between; align-items: baseline;
+  padding-top: 18px; border-top: 1px solid rgba(250, 250, 247, 0.18);
 }
-.footer-copyright { margin: 0; font-size: 13px; color: var(--lavender-dim); }
+.footer-endnote { margin: 0; font-size: 13px; color: var(--lavender-dim); }
+.footer-endnote a { color: var(--lavender); text-decoration: underline; text-underline-offset: 3px; }
+.footer-endnote a:hover { color: var(--cream); }

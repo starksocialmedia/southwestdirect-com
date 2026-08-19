@@ -677,3 +677,26 @@ skip-free — verified no heading skips on the page.
 `navigator.globalPrivacyControl` is true. A no-op by design, since the site
 neither sells nor shares — it exists as a hook and as evidence of awareness.
 
+### 25. Footer tightened into three rows
+
+The disclosures used to run full width beneath the credentials, which left the
+right of the credentials row empty. Restructured:
+
+| Row | Left | Right |
+| --- | --- | --- |
+| 1 | Brand mark | Legal links |
+| 2 | Credentials (both entities, stacked) + Equal Opportunity Lender | Both disclosure paragraphs |
+| 3 | Contact line | Copyright + Stark Social credit |
+
+Row 2 pairs from **720px** so tablet widths use both columns rather than
+stacking; row 3 sits on one line once there is room for it. Below 720px
+everything collapses to a single column in the same logical order.
+
+Vertical rhythm tightened about 28%: the inner padding went from `56px / 40px`
+to `40px / 28px` and the row gap from 32px to 22px. Measured footer height at
+1440px is now 371px.
+
+The copyright and the Stark Social credit were separate blocks and are now one
+line, keeping the earlier wording ("Website crafted by") rather than the
+shorthand in the layout sketch.
+
