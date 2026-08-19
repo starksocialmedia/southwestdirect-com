@@ -303,15 +303,33 @@ def footer(current=None):
     <div class="footer-top">
       <p class="footer-brand">Joffrey Long / SouthwestDirect.com</p>
       <nav class="footer-legal-nav" aria-label="Legal">
-        <a href="accessibility-statement.html"{cur("a11y")}>Accessibility statement</a>
-        <a href="privacy-terms.html"{cur("privacy")}>Privacy &amp; terms</a>
+        <a href="privacy-terms.html"{cur("privacy")}>Privacy Policy</a>
+        <a href="privacy-terms.html#terms">Terms of Service</a>
+        <a href="accessibility-statement.html"{cur("a11y")}>Accessibility Statement</a>
+        <a href="privacy-terms.html#do-not-sell">Do Not Sell or Share My Personal Information</a>
       </nav>
     </div>
+
+    <div class="footer-licensing">
+      <div class="footer-lic">
+        <p class="footer-lic-name">Southwest Bancorp</p>
+        <p>California DRE Broker License #00898122</p>
+        <p>NMLS ID #285731</p>
+      </div>
+      <div class="footer-lic">
+        <p class="footer-lic-name">Joffrey Long</p>
+        <p>California DRE Broker License #00525142</p>
+        <p>NMLS ID #207202</p>
+      </div>
+      <p class="footer-eol">Equal Opportunity Lender</p>
+    </div>
+
     <div class="footer-disclosures">
       <p>Loans are primarily made (funded) and serviced by Southwest Bancorp under Calif. Dept of Real Estate Broker License no. 00898122. (<a href="https://www.dre.ca.gov" title="California Department of Real Estate — licence lookup">www.DRE.CA.gov</a>) Joffrey Long holds Calif. Dept. of Real Estate Broker License no. 00525142. Loans may also be arranged with entities owned by Southwest Bancorp or its owners, or with third party lenders.</p>
       <p>Investments in trust deeds secured by one or more interests in real property are subject to risk of loss. Southwest Bancorp does not make (fund) consumer purpose loans that are secured by 1-4 family residences. Those loans may be arranged with institutional lenders, under NMLS Identifier No. 285731 (Southwest Bancorp) and No. 207202 (Joffrey Long).</p>
     </div>
     <p class="footer-meta">5151 California Ave STE 100, Irvine, CA 92617-3205 &middot; <a href="tel:{PHONE_TEL}">818-635-1777</a> &middot; <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a></p>
+    <p class="footer-copyright">&copy; 2026 Southwest Bancorp. All rights reserved.</p>
     <p class="footer-credit">Website crafted by
       <a href="https://starksocial.com" target="_blank" rel="noopener noreferrer"
          title="Stark Social Media Agency (Santa Clarita/Los Angeles)">Stark Social</a>
@@ -319,13 +337,13 @@ def footer(current=None):
   </div>
 </footer>'''
 
-
 BACK_TO_TOP = """<button type="button" class="back-to-top" aria-label="Back to top">
   <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
     <path d="M12 19V6M6 12l6-6 6 6" fill="none" stroke="currentColor"
           stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
 </button>"""
+
 
 def page(title, desc, path, body, current=None, prefix=""):
     # 404 has no contact block, so it does not need the map library
@@ -667,12 +685,21 @@ PRIVACY_BODY = f'''<main>
     <div class="toc">
       <h2>On this page</h2>
       <ul>
-        <li><a href="#privacy">Privacy Policy</a></li>
+        <li><a href="#privacy">Privacy Policy</a>
+          <ul><li><a href="#do-not-sell">Do Not Sell or Share My Personal Information</a></li></ul>
+        </li>
         <li><a href="#terms">Terms of Service</a></li>
       </ul>
     </div>
 
     <h2 id="privacy">Privacy Policy</h2>
+
+    <h3 id="do-not-sell">Do Not Sell or Share My Personal Information</h3>
+    <p>Southwest Bancorp does not sell or share personal information as defined by the California Consumer Privacy Act (CCPA) and California Privacy Rights Act (CPRA). We do not have data partnerships, advertising trackers, or third-party integrations on this website that would constitute a &ldquo;sale&rdquo; or &ldquo;sharing&rdquo; of your personal information under California law.</p>
+    <p>If you have questions about our data practices, or if you&rsquo;d like to exercise any of your rights under the CCPA/CPRA (right to know, delete, correct, or opt out), please contact us at <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a> or <a href="tel:{PHONE_TEL}">{PHONE_DISPLAY}</a>.</p>
+
+    <h4>Global Privacy Control (GPC) Signals</h4>
+    <p>This website honors Global Privacy Control (GPC) browser signals. If your browser is configured to send a GPC signal, we treat it as a valid request to opt out of the sale or sharing of your personal information &mdash; though as noted above, we do not engage in either practice on this site.</p>
 
     <h3>Introduction</h3>
     <p>Southwest Bancorp (“we,” “us,” “our”) operates SouthwestDirect.com (the “Site”). This Privacy Policy explains what information we collect when you visit the Site, how we use it, and your rights regarding that information.</p>

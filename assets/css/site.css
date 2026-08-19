@@ -622,6 +622,15 @@ html.menu-open, html.menu-open body { overflow: hidden; }
 /* Same footprint as the static fallback it replaces, so the Contact layout
    does not shift when Leaflet takes over. */
 .map-canvas { width: 100%; height: 382px; border: 1px solid var(--line); border-radius: 6px; }
+/* Once the two contact columns sit side by side, let the map fill the row so it
+   balances the stacked details beside it. Flex wraps on flex-basis, not
+   min-width, so the columns pair up at 380 + 420 + 56 gap + 48 gutters = 904px.
+   Below that they stack and the map keeps its own proportional height rather
+   than stretching to match a tall column. */
+@media (min-width: 904px) {
+  .contact-map { display: flex; flex-direction: column; }
+  .map-canvas { flex: 1 1 auto; height: auto; min-height: 382px; }
+}
 .leaflet-container { border-radius: 6px; font: inherit; background: var(--cream-tint); }
 .map-pin { background: none; border: 0; }
 .map-pin svg { display: block; filter: drop-shadow(0 2px 3px rgba(20, 29, 64, 0.35)); }
@@ -658,3 +667,18 @@ html.menu-open, html.menu-open body { overflow: hidden; }
 .map-popup a.leaflet-popup-close-button:hover { color: var(--navy); background: none; }
 
 @media print { .map-canvas { display: none !important; } }
+
+/* --- Footer licensing ---------------------------------------------------- */
+.footer-licensing {
+  display: grid; gap: 8px 48px;
+  padding-top: 26px; border-top: 1px solid rgba(250, 250, 247, 0.18);
+  font-size: 14px; line-height: 1.55; color: var(--lavender-dim);
+}
+.footer-lic p { margin: 0; }
+.footer-lic-name { color: var(--lavender); font-weight: 700; }
+.footer-eol { margin: 6px 0 0; font-style: italic; color: var(--lavender); }
+@media (min-width: 700px) {
+  .footer-licensing { grid-template-columns: 1fr 1fr; }
+  .footer-eol { grid-column: 1 / -1; }
+}
+.footer-copyright { margin: 0; font-size: 13px; color: var(--lavender-dim); }

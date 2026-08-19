@@ -631,3 +631,49 @@ It now sits after the whole `<dl>` rather than inside the e-mail entry, with a
 methods. Placing it outside the `<dl>` also keeps the markup valid — a bare link
 between `<div>` groups inside a definition list would not be.
 
+### 23. Contact map fills the row
+
+Above 904px the map stretches to match the height of the contact details beside
+it (measured: both 441px, zero difference). Below that the columns stack and the
+map keeps its own 382px height rather than stretching to match a tall list.
+
+904px is not arbitrary: flex wraps on flex-basis, not min-width, so the two
+columns pair up at 380 + 420 + 56 gap + 48 gutters. Verified the switch lands
+exactly there — stacked at 903px, side by side at 904px.
+
+### 24. Footer: licensing, legal links, CCPA
+
+Two premises worth correcting, because neither was actually broken:
+
+* **The licence numbers were already on every page.** All four (DRE 00898122 /
+  00525142, NMLS 285731 / 207202) appeared in the footer disclosure paragraphs
+  on all four pages, including 404. The site was not out of compliance with BPC
+  10140.6 or 10235.5. What the new block adds is *scannability* — the numbers
+  were buried in prose, and now they are a labelled two-column list.
+* **The Privacy Policy was already linked** in the footer, as "Privacy &
+  terms". Relabelling it to explicit "Privacy Policy" and "Terms of Service"
+  links is still an improvement for discoverability.
+
+Added to the footer on all four pages:
+
+* A licensing block, two columns on desktop and stacked on mobile, with
+  "Equal Opportunity Lender" beneath it, separated by a rule.
+* Legal links: Privacy Policy, Terms of Service (deep-linked to `#terms`),
+  Accessibility Statement, and Do Not Sell or Share My Personal Information
+  (deep-linked to `#do-not-sell`).
+* A copyright line.
+
+Contrast on the navy footer: names at 8.42:1, detail lines and copyright at
+5.37:1, both clear of AA.
+
+**Do Not Sell section** added to the privacy page. One judgement call on
+heading level: it was specified as `##`, but it belongs *inside* the Privacy
+Policy section, before Introduction. Making it a sibling `h2` of "Privacy
+Policy" would have implied it sits outside the policy. It is an `h3` alongside
+Introduction, with the GPC subsection as `h4`, which keeps the outline
+skip-free — verified no heading skips on the page.
+
+**GPC detection** added to `site.js`: sets `data-gpc="true"` on `<html>` when
+`navigator.globalPrivacyControl` is true. A no-op by design, since the site
+neither sells nor shares — it exists as a hook and as evidence of awareness.
+

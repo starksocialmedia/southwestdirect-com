@@ -6,6 +6,14 @@
   "use strict";
 
   var root = document.documentElement;
+
+  // GPC signal detection — CCPA/CPRA compliance evidence.
+  // No-op by design: this site does not sell or share personal information.
+  // The attribute is a hook for future analytics or debugging, not user-facing.
+  if (navigator.globalPrivacyControl === true) {
+    root.setAttribute("data-gpc", "true");
+  }
+
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   /* -------------------------------------------------------------- drawer */
