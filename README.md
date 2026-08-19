@@ -577,3 +577,57 @@ Deliberately **not** added:
 - **`BreadcrumbList`** — not applicable. This is a one-page site with two legal
   pages; there is no hierarchy to describe.
 
+### 21. Interactive map (styled OSM, no API key)
+
+Replaces the static PNG with a real Leaflet map, on Nathan's call. Google Maps
+was ruled out explicitly.
+
+**Tiles: CARTO Positron** (`basemaps.cartocdn.com/light_all`) — the muted,
+desaturated style, no API key and no account. I tested the alternatives:
+Stadia now returns **401** without a key, so it was out; CARTO Voyager and
+`light_nolabels` both work if a different look is ever wanted.
+
+**Leaflet 1.9.4 is vendored** into `assets/vendor/leaflet/` rather than pulled
+from a CDN — no third-party script at runtime, nothing to break if a CDN
+changes. That is +158 KB of assets, the one real cost of going interactive.
+Its sprite images (`marker-icon.png`, `layers.png`) are never requested,
+because the marker is a `divIcon` and there is no layers control; verified zero
+failed requests.
+
+**Scroll hijacking is handled cooperatively**, which was the whole reason the
+map went static in the first place. Measured on real wheel events:
+
+| State | Wheel over the map |
+| --- | --- |
+| On load | not intercepted — the page scrolls |
+| After a click on the map | intercepted — the map zooms |
+| After the pointer leaves | not intercepted again |
+
+Touch drag is left to the page on mobile (`dragging: !L.Browser.mobile`) and
+enabled on first tap, so a one-finger swipe scrolls the page rather than
+trapping in the map.
+
+**Marker and popup.** A navy `#1E2A5E` pin with a gold `#B8874B` centre and a
+cream outline, drawn as inline SVG in a `divIcon` — not the default blue
+Leaflet marker. It opens a popup on load and re-opens on click; verified the pin
+has `pointer-events: auto` and is not covered by anything. The popup is cream
+with a navy left rule and carries the address plus a "Get directions" link to
+`maps.google.com/?q=…`, which iOS hands to Apple Maps. Dismissible via its close
+button or by clicking the map.
+
+**Progressive enhancement.** The container still ships with the static PNG and
+its OpenStreetMap link inside it. Leaflet clears that only once it has actually
+loaded, so with JavaScript disabled the map is exactly what it was before.
+Attribution is required either way: the static fallback keeps the text note, and
+Leaflet renders its own control once live.
+
+The map is keyboard focusable with an `aria-label` naming the office address,
+and the zoom controls and popup close button all take the site focus ring.
+
+### 22. vCard moved below the contact stack
+
+It now sits after the whole `<dl>` rather than inside the e-mail entry, with a
+26px gap, reading as a "save all of this" action after the individual contact
+methods. Placing it outside the `<dl>` also keeps the markup valid — a bare link
+between `<div>` groups inside a definition list would not be.
+

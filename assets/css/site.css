@@ -246,12 +246,12 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 .contact-email { font-size: 18px; font-weight: 600; color: var(--navy); text-decoration: underline; text-underline-offset: 4px; }
 .contact-email:hover { color: var(--brown); }
 .contact-address { font-size: 16px; line-height: 1.6; color: var(--ink); }
-/* Sits directly beneath the e-mail address as a supporting action, so it is a
-   step smaller and quieter than the link above it. width: fit-content keeps the
-   hit area on the text rather than the full column. */
+/* Sits below the whole contact stack as a "save all of this" action, so it gets
+   clear separation. width: fit-content keeps the hit area on the text rather
+   than the full column. */
 .link-vcard {
   display: flex; width: fit-content; align-items: center; gap: 6px;
-  margin-top: 6px;
+  margin-top: 26px;
   font-size: 14px; font-weight: 600; color: var(--brown);
   text-decoration: underline; text-underline-offset: 3px;
 }
@@ -617,3 +617,44 @@ html.menu-open, html.menu-open body { overflow: hidden; }
   .back-to-top, .icon-phone, .nav-toggle { forced-color-adjust: none; }
   .card, .map-img, .drawer { border: 1px solid CanvasText; }
 }
+
+/* --- Interactive map ----------------------------------------------------- */
+/* Same footprint as the static fallback it replaces, so the Contact layout
+   does not shift when Leaflet takes over. */
+.map-canvas { width: 100%; height: 382px; border: 1px solid var(--line); border-radius: 6px; }
+.leaflet-container { border-radius: 6px; font: inherit; background: var(--cream-tint); }
+.map-pin { background: none; border: 0; }
+.map-pin svg { display: block; filter: drop-shadow(0 2px 3px rgba(20, 29, 64, 0.35)); }
+
+/* Leaflet's own controls, brought onto the site palette. */
+.leaflet-bar a, .leaflet-bar a:hover {
+  background: var(--cream); color: var(--navy); border-bottom-color: var(--line);
+}
+.leaflet-bar a:hover { background: var(--cream-tint); }
+.leaflet-bar a:focus-visible { outline: 3px solid var(--navy); outline-offset: 2px; }
+.leaflet-container a.leaflet-popup-close-button:focus-visible { outline: 3px solid var(--navy); outline-offset: 2px; }
+.leaflet-control-attribution {
+  background: rgba(250, 250, 247, 0.9); color: var(--ink-soft); font-size: 11px;
+}
+.leaflet-control-attribution a { color: var(--brown); }
+
+/* Popup */
+.map-popup .leaflet-popup-content-wrapper {
+  background: var(--cream); color: var(--navy);
+  border-left: 3px solid var(--navy); border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(20, 29, 64, 0.22);
+}
+.map-popup .leaflet-popup-tip { background: var(--cream); }
+.map-popup .leaflet-popup-content { margin: 14px 16px; font-size: 14px; line-height: 1.5; }
+.map-popup .leaflet-popup-content strong { display: block; color: var(--navy); font-size: 14px; }
+.map-popup .leaflet-popup-content span { display: block; margin-top: 4px; color: var(--ink); }
+.map-popup .map-directions {
+  display: inline-block; margin-top: 10px;
+  color: var(--brown); font-weight: 600;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.map-popup .map-directions:hover { color: var(--navy); }
+.map-popup a.leaflet-popup-close-button { color: var(--ink-soft); padding: 6px 6px 0 0; }
+.map-popup a.leaflet-popup-close-button:hover { color: var(--navy); background: none; }
+
+@media print { .map-canvas { display: none !important; } }

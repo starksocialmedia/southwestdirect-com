@@ -119,6 +119,9 @@ def head(title, desc, page_path, og_type="website"):
     # index.html canonicalises to the bare root so the site has one URL, not two.
     canonical_path = "" if page_path == "index.html" else page_path
     # The hero portrait is the LCP element on the landing page; hint it early.
+    has_map = page_path != "404.html"
+    leaflet_css = '<link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">\n' if has_map else ''
+    leaflet_js = '<script src="assets/vendor/leaflet/leaflet.js" defer></script>\n' if has_map else ''
     hero_preload = (
         '<link rel="preload" as="image" href="images/joffrey-long-640.jpg"\n'
         '      imagesrcset="images/joffrey-long-320.jpg 320w, images/joffrey-long-640.jpg 640w, images/joffrey-long-748.jpg 748w"\n'
@@ -162,7 +165,7 @@ def head(title, desc, page_path, og_type="website"):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/site.css">
+{leaflet_css}<link rel="stylesheet" href="assets/css/site.css">
 {hero_preload}
 <script>document.documentElement.classList.add("js");</script>
 
@@ -258,18 +261,7 @@ def contact():
         </div>
         <div>
           <dt class="contact-dt">Email</dt>
-          <dd class="contact-dd">
-            <a class="contact-email" href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a>
-            <a class="link-vcard" href="assets/joffrey-long.vcf" download="joffrey-long.vcf"
-               aria-label="Download Joffrey Long&#39;s contact info as a vCard file">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
-                   aria-hidden="true" focusable="false">
-                <path d="M12 3v12M7 11l5 5 5-5M4 21h16"/>
-              </svg>
-              <span>Download vCard</span>
-            </a>
-          </dd>
+          <dd class="contact-dd"><a class="contact-email" href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a></dd>
         </div>
         <div>
           <dt class="contact-dt">Office</dt>
@@ -280,13 +272,24 @@ def contact():
           </dd>
         </div>
       </dl>
+      <a class="link-vcard" href="assets/joffrey-long.vcf" download="joffrey-long.vcf"
+         aria-label="Download Joffrey Long&#39;s contact info as a vCard file">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true" focusable="false">
+          <path d="M12 3v12M7 11l5 5 5-5M4 21h16"/>
+        </svg>
+        <span>Download vCard</span>
+      </a>
     </div>
     <div class="contact-map">
+      <div id="office-map" class="map-canvas" data-lat="33.64074" data-lon="-117.85386" data-zoom="16">
       <a class="map-link" href="https://www.openstreetmap.org/?mlat=33.64074&amp;mlon=-117.85386#map=17/33.64074/-117.85386"
          target="_blank" rel="noopener" title="Open this location in OpenStreetMap">
 {picture("office-map", "map-img", "Map showing the office at 5151 California Ave STE 100, Irvine, California", "(min-width: 960px) 520px, 92vw", 8)}
         <span class="visually-hidden"> (opens OpenStreetMap in a new tab)</span>
       </a>
+      </div>
       <p class="map-note">Map data &copy; OpenStreetMap contributors.</p>
     </div>
   </section>'''
@@ -325,6 +328,9 @@ BACK_TO_TOP = """<button type="button" class="back-to-top" aria-label="Back to t
 </button>"""
 
 def page(title, desc, path, body, current=None, prefix=""):
+    # 404 has no contact block, so it does not need the map library
+    leaflet_js = ('<script src="assets/vendor/leaflet/leaflet.js" defer></script>\n'
+                  if path != "404.html" else "")
     return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -338,7 +344,7 @@ def page(title, desc, path, body, current=None, prefix=""):
 {footer(current)}
 
 {BACK_TO_TOP}
-<script src="assets/js/site.js" defer></script>
+{leaflet_js}<script src="assets/js/site.js" defer></script>
 </body>
 </html>
 '''

@@ -77,6 +77,80 @@
     setDrawer(false, false);
   }
 
+  /* ----------------------------------------------------------------- map */
+  /* The container ships with a static image inside it, which is what a
+     no-JS visitor keeps. Leaflet only takes over once it has actually loaded. */
+  var mapEl = document.getElementById("office-map");
+
+  if (mapEl && window.L) {
+    var lat = parseFloat(mapEl.dataset.lat);
+    var lon = parseFloat(mapEl.dataset.lon);
+    var zoom = parseInt(mapEl.dataset.zoom, 10);
+
+    mapEl.innerHTML = "";                       // drop the static fallback
+    var note = document.querySelector(".map-note");
+    if (note) note.remove();                    // Leaflet renders its own attribution
+
+    var map = L.map(mapEl, {
+      center: [lat, lon],
+      zoom: zoom,
+      // Cooperative by default: the wheel scrolls the page until the reader
+      // deliberately activates the map, and touch drag is left to the page.
+      scrollWheelZoom: false,
+      dragging: !L.Browser.mobile,
+      tap: false
+    });
+
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+      maxZoom: 19,
+      subdomains: "abcd",
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors ' +
+        '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+    }).addTo(map);
+
+    var pin = L.divIcon({
+      className: "map-pin",
+      iconSize: [30, 40],
+      iconAnchor: [15, 38],
+      popupAnchor: [0, -34],
+      html:
+        '<svg width="30" height="40" viewBox="0 0 30 40" aria-hidden="true" focusable="false">' +
+          '<path d="M15 39C15 39 28 24.5 28 14.5A13 13 0 1 0 2 14.5C2 24.5 15 39 15 39Z" ' +
+                'fill="#1E2A5E" stroke="#FAFAF7" stroke-width="2"/>' +
+          '<circle cx="15" cy="14.5" r="5" fill="#B8874B"/>' +
+        '</svg>'
+    });
+
+    var addr = "5151 California Ave STE 100, Irvine, CA 92617-3205";
+    var marker = L.marker([lat, lon], {
+      icon: pin,
+      keyboard: true,
+      title: "Joffrey Long / SouthwestDirect.com",
+      alt: "Office location: " + addr
+    }).addTo(map);
+
+    marker.bindPopup(
+      '<strong>Joffrey Long / SouthwestDirect.com</strong>' +
+      '<span>5151 California Ave STE 100<br>Irvine, CA 92617-3205</span>' +
+      '<a class="map-directions" target="_blank" rel="noopener noreferrer" ' +
+         'href="https://maps.google.com/?q=' + encodeURIComponent(addr) + '">Get directions</a>',
+      { className: "map-popup", closeButton: true, autoPanPadding: [16, 16] }
+    ).openPopup();
+
+    // Activate on deliberate interaction, stand down when the pointer leaves.
+    var activate = function () {
+      map.scrollWheelZoom.enable();
+      if (L.Browser.mobile) map.dragging.enable();
+    };
+    mapEl.addEventListener("click", activate);
+    mapEl.addEventListener("focusin", activate);
+    mapEl.addEventListener("mouseleave", function () { map.scrollWheelZoom.disable(); });
+
+    map.getContainer().setAttribute("aria-label",
+      "Interactive map of the office at " + addr);
+  }
+
   /* -------------------------------------------------------- back to top */
   var btn = document.querySelector(".back-to-top");
   if (!btn) return;

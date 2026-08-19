@@ -39,6 +39,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="assets/css/site.css">
 
 <script>document.documentElement.classList.add("js");</script>
@@ -317,18 +318,7 @@
         </div>
         <div>
           <dt class="contact-dt">Email</dt>
-          <dd class="contact-dd">
-            <a class="contact-email" href="mailto:info@asksw.com">info@asksw.com</a>
-            <a class="link-vcard" href="assets/joffrey-long.vcf" download="joffrey-long.vcf"
-               aria-label="Download Joffrey Long&#39;s contact info as a vCard file">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
-                   aria-hidden="true" focusable="false">
-                <path d="M12 3v12M7 11l5 5 5-5M4 21h16"/>
-              </svg>
-              <span>Download vCard</span>
-            </a>
-          </dd>
+          <dd class="contact-dd"><a class="contact-email" href="mailto:info@asksw.com">info@asksw.com</a></dd>
         </div>
         <div>
           <dt class="contact-dt">Office</dt>
@@ -339,8 +329,18 @@
           </dd>
         </div>
       </dl>
+      <a class="link-vcard" href="assets/joffrey-long.vcf" download="joffrey-long.vcf"
+         aria-label="Download Joffrey Long&#39;s contact info as a vCard file">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true" focusable="false">
+          <path d="M12 3v12M7 11l5 5 5-5M4 21h16"/>
+        </svg>
+        <span>Download vCard</span>
+      </a>
     </div>
     <div class="contact-map">
+      <div id="office-map" class="map-canvas" data-lat="33.64074" data-lon="-117.85386" data-zoom="16">
       <a class="map-link" href="https://www.openstreetmap.org/?mlat=33.64074&amp;mlon=-117.85386#map=17/33.64074/-117.85386"
          target="_blank" rel="noopener" title="Open this location in OpenStreetMap">
         <picture>
@@ -353,6 +353,7 @@
         </picture>
         <span class="visually-hidden"> (opens OpenStreetMap in a new tab)</span>
       </a>
+      </div>
       <p class="map-note">Map data &copy; OpenStreetMap contributors.</p>
     </div>
   </section>
@@ -385,6 +386,7 @@
           stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
 </button>
+<script src="assets/vendor/leaflet/leaflet.js" defer></script>
 <script src="assets/js/site.js" defer></script>
 </body>
 </html>
