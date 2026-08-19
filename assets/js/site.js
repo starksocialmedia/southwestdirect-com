@@ -53,7 +53,8 @@
     });
 
     // Growing past the breakpoint hides the toggle, so drop the panel with it.
-    var desktop = window.matchMedia("(min-width: 820px)");
+    // 960px matches the width at which the full desktop nav fits on one row.
+    var desktop = window.matchMedia("(min-width: 960px)");
     var onBreakpoint = function () { if (desktop.matches && isOpen()) setMenu(false, false); };
     if (desktop.addEventListener) desktop.addEventListener("change", onBreakpoint);
     else if (desktop.addListener) desktop.addListener(onBreakpoint);

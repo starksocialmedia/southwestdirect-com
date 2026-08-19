@@ -170,14 +170,17 @@ def header(prefix=""):
       <span class="brand-domain">SouthwestDirect.com</span>
     </a>
 
-    <nav class="main-nav" aria-label="Main">
-{desktop}
-      <a class="btn-primary btn-nav" href="tel:{PHONE_TEL}">Call or Text {PHONE_DISPLAY}</a>
-    </nav>
-
     <div class="mobile-controls">
-      <a class="btn-primary btn-call-compact" href="tel:{PHONE_TEL}"
-         aria-label="Call or text {PHONE_DISPLAY}">Call / Text</a>
+      <a class="icon-phone" href="tel:{PHONE_TEL}" aria-label="Call or text 818-635-1777">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true" focusable="false">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6
+                   A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81
+                   a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45
+                   c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+      </a>
       <button type="button" class="nav-toggle" aria-expanded="false"
               aria-controls="mobile-menu" aria-label="Open menu">
         <svg class="icon-open" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
@@ -190,6 +193,11 @@ def header(prefix=""):
         </svg>
       </button>
     </div>
+
+    <nav class="main-nav" aria-label="Main">
+{desktop}
+      <a class="btn-primary btn-nav" href="tel:{PHONE_TEL}">Call or Text {PHONE_DISPLAY}</a>
+    </nav>
   </div>
 
   <nav id="mobile-menu" class="mobile-menu" aria-label="Page sections" hidden>
@@ -228,11 +236,12 @@ def contact():
       </dl>
     </div>
     <div class="contact-map">
-      <iframe class="map-frame"
-              title="Map showing the office location: 5151 California Ave STE 100, Irvine, California"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=-117.8630%2C33.6420%2C-117.8250%2C33.6650&amp;layer=mapnik&amp;marker=33.65350%2C-117.84400"
-              loading="lazy"></iframe>
-      <p class="map-note"><a href="https://www.openstreetmap.org/?mlat=33.65350&amp;mlon=-117.84400#map=15/33.6535/-117.8440">View larger map</a></p>
+      <a class="map-link" href="https://www.openstreetmap.org/?mlat=33.65350&amp;mlon=-117.84400#map=15/33.6535/-117.8440"
+         target="_blank" rel="noopener">
+{picture("office-map", "map-img", "Map showing the office at 5151 California Ave STE 100, Irvine, California", "(min-width: 960px) 520px, 92vw", 8)}
+        <span class="visually-hidden"> (opens OpenStreetMap in a new tab)</span>
+      </a>
+      <p class="map-note">Map data &copy; OpenStreetMap contributors.</p>
     </div>
   </section>'''
 

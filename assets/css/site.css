@@ -268,8 +268,6 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 .contact-email:hover { color: var(--brown); }
 .contact-address { font-size: 16px; line-height: 1.6; color: var(--ink); }
 .contact-map { flex: 1 1 420px; min-width: min(300px, 100%); }
-/* 382px = the design's 380px frame + 1px border top and bottom. */
-.map-frame { width: 100%; height: 382px; border: 1px solid var(--line); border-radius: 6px; }
 .map-note { margin: 10px 0 0; font-size: 13px; color: var(--ink-soft); }
 
 /* --- Footer ------------------------------------------------------------- */
@@ -397,17 +395,45 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
    max-width 819px. Here that swap is done in CSS rather than with JS state, so
    the correct header renders before any script runs.
    ------------------------------------------------------------------------ */
-.mobile-controls { display: none; align-items: center; gap: 10px; }
-.btn-call-compact { font-size: 14px; padding: 12px 16px; }
+.mobile-controls { display: none; align-items: center; gap: 12px; flex: none; }
+
+/* Compact call control. 44x44 so the tap target is comfortable even though the
+   glyph is small; navy/cream to match the back-to-top button. */
+.icon-phone {
+  flex: none;
+  width: 44px; height: 44px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--navy); color: var(--cream);
+  border-radius: 999px;
+  text-decoration: none;
+}
+.icon-phone:hover { background: var(--navy-deep); color: var(--cream); }
+.icon-phone svg { display: block; }
 
 .nav-toggle {
   display: none;                    /* only shown once .js confirms JS is live */
+  flex: none;
   background: var(--navy); border: none; border-radius: 4px;
   color: var(--cream); width: 44px; height: 44px;
   align-items: center; justify-content: center; cursor: pointer; padding: 0;
 }
 .nav-toggle:hover { background: var(--navy-deep); }
 .nav-toggle svg { display: block; }
+
+/* Same dual-tone ring as the back-to-top control: the cream edge reads against
+   the navy button, the navy halo against the cream header behind it. */
+.icon-phone:focus-visible,
+.nav-toggle:focus-visible {
+  outline: 3px solid var(--cream);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 7px var(--navy);
+}
+/* The global focus rule rounds text-link rings to 2px. Outlines follow the
+   element's border-radius, so restore each control's own shape while focused
+   or the circular phone button squares off the moment it is tabbed to. */
+.icon-phone:focus, .icon-phone:focus-visible { border-radius: 999px; }
+.nav-toggle:focus, .nav-toggle:focus-visible,
+.back-to-top:focus, .back-to-top:focus-visible { border-radius: 4px; }
 
 .mobile-menu {
   position: absolute; top: 100%; left: 0; right: 0;
@@ -439,10 +465,24 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
   letter-spacing: 0.06em; color: var(--lavender-dim);
 }
 
-@media (max-width: 819px) {
+/* The desktop header needs 959px to sit on one row (brand 170 + nav 716 + gap +
+   gutters). Below that the compact controls are used instead, so the header is
+   never a wrapped two-row block. */
+@media (max-width: 959px) {
   .main-nav { display: none; }
   .mobile-controls { display: flex; }
   html.js .nav-toggle { display: inline-flex; }
+
+  /* Keep the header on one row at every mobile width. The brand is allowed to
+     shrink (and wrap its own text) so the icons stay pinned right. */
+  .header-inner { flex-wrap: nowrap; gap: 12px; }
+  .brand { min-width: 0; }
+}
+
+/* Under 375px the brand wordmark needs the room more than the call shortcut
+   does; the drawer still carries a prominent Call or Text button. */
+@media (max-width: 374px) {
+  .icon-phone { display: none; }
 }
 
 /* Freeze the page behind the open panel. */
@@ -456,3 +496,18 @@ html.menu-open, html.menu-open body { overflow: hidden; }
 .nav-toggle .icon-close { display: none; }
 .nav-toggle[aria-expanded="true"] .icon-open { display: none; }
 .nav-toggle[aria-expanded="true"] .icon-close { display: block; }
+
+/* --- Static office map --------------------------------------------------- */
+/* Replaces the OSM iframe, which swallowed the scroll wheel over the Contact
+   section. Same footprint as the old frame so the layout is unchanged. */
+.map-link { display: block; border-radius: 6px; }
+.map-img {
+  display: block; width: 100%; height: 382px; object-fit: cover;
+  border: 1px solid var(--line); border-radius: 6px;
+}
+.map-link:hover .map-img { border-color: var(--brown); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}

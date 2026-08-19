@@ -388,3 +388,62 @@ Contrast re-checked on every new element — nine pairs, all passing, worst case
 4.27:1 on the gold link hover, which clears the 3:1 that 28px semibold needs.
 Reflow re-checked across 29 width/page combinations from 320px to 1440px,
 including with the menu open. No horizontal scrolling anywhere.
+
+### 15. Mobile header — single row, and a breakpoint correction
+
+The header is now one row at every width, with three tiers:
+
+| Width | Header |
+| --- | --- |
+| < 375px | brand + hamburger |
+| 375 – 959px | brand + phone icon + hamburger |
+| >= 960px | full desktop nav + "Call or Text" button |
+
+The text "Call / Text" button was replaced by a 44 x 44 circular phone control —
+inline Feather-style SVG, navy on cream, `aria-label="Call or text
+818-635-1777"`, `href="tel:+18186351777"`, with the SVG marked `aria-hidden`. It
+sits 12px from the hamburger, both centred against the two-line brand. DOM order
+is brand -> phone -> hamburger -> desktop nav, so the tab order reads the way it
+looks. Below 375px the phone icon is dropped so the wordmark keeps its room; the
+drawer still carries a prominent Call or Text button.
+
+**The desktop breakpoint moved from 820px to 960px.** Measured: the desktop
+header needs **959px** to fit on one row — brand 170 + nav 716 + 24 gap + 48
+gutters. v2's own 819px breakpoint therefore produced a *wrapped two-row desktop
+header* between 820px and 958px. Raising the switch to 960px means the compact
+controls cover that band instead, and the header is never a wrapped block.
+
+That does mean mobile-style controls appear at 768px, which is a tablet width.
+Fitting the real desktop nav there would need the type shrunk and the phone
+number dropped from the CTA — a visible change to approved design. Raising the
+breakpoint keeps the design intact; say the word if you would rather shrink the
+nav instead.
+
+Verified across 38 width/page combinations (320 – 1440px, all three pages, menu
+open and closed): correct tier, single row, and no horizontal scrolling in every
+one. Focus rings on both icons use the same dual-tone ring as the back-to-top
+control. One bug fixed on the way: the global focus rule forces `border-radius:
+2px`, which squared off the circular phone button the moment it was tabbed to —
+each control now keeps its own shape while focused.
+
+### 16. Contact map — static image instead of an embed
+
+The OpenStreetMap iframe captured the scroll wheel whenever the cursor crossed
+it. Replaced with a static map image that links out to OpenStreetMap in a new
+tab, which is the simpler of the two options and right for a single location:
+nothing to explore on the page, and no JavaScript involved.
+
+`tools/build-map.py` renders it by stitching 20 OSM tiles at zoom 15 around the
+office coordinate, drawing a brand-navy pin and burning in the required
+attribution. It is committed, so the map can be regenerated or re-centred without
+hunting for a screenshot. Output goes to `images/_src/office-map.png` and through
+the normal pipeline to WebP + JPEG at 520 and 1040.
+
+The image keeps the old frame's exact footprint (382px tall, `object-fit: cover`)
+so the Contact layout is unchanged. Its alt text names the office address, the
+link carries a visually-hidden "(opens OpenStreetMap in a new tab)" so the
+new-tab behaviour is announced, `rel="noopener"` is set, and the attribution is
+repeated as real page text beneath the map.
+
+**There are now no iframes anywhere on the site.**
+

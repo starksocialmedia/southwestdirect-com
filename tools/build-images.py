@@ -39,6 +39,9 @@ SPEC = {
     # placeholders until a licensed photo lands in images/_src/.
     "california-band": (
         "california-band.jpg", [768, 1280, 1920], (1920, 320), "California coastline"),
+    # Static replacement for the interactive OSM embed; see tools/build-map.py.
+    "office-map": (
+        "office-map.png", [520, 1040], (1040, 760), "Office location map"),
 }
 
 # Slugs that must render a "PHOTO PENDING" placeholder even though a source file
