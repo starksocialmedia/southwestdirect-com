@@ -26,7 +26,6 @@
      i.e. 1168px outer. This build is border-box, so the token is the outer
      width and the content column comes out at 1120px, matching the design. */
   --wrap:  1168px;
-  --dl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3v12M7 11l5 5 5-5M4 21h16'/%3E%3C/svg%3E");
   --header-h: 84px;
 }
 
@@ -247,20 +246,20 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 .contact-email { font-size: 18px; font-weight: 600; color: var(--navy); text-decoration: underline; text-underline-offset: 4px; }
 .contact-email:hover { color: var(--brown); }
 .contact-address { font-size: 16px; line-height: 1.6; color: var(--ink); }
-/* Deliberately quieter than the phone and e-mail above it: this is a third
-   option, not a call to action. */
+/* Sits directly beneath the e-mail address as a supporting action, so it is a
+   step smaller and quieter than the link above it. width: fit-content keeps the
+   hit area on the text rather than the full column. */
 .link-vcard {
-  display: inline-flex; align-items: center; gap: 7px;
-  font-size: 15px; font-weight: 600; color: var(--brown);
-  text-decoration: underline; text-underline-offset: 4px;
+  display: flex; width: fit-content; align-items: center; gap: 6px;
+  margin-top: 6px;
+  font-size: 14px; font-weight: 600; color: var(--brown);
+  text-decoration: underline; text-underline-offset: 3px;
 }
 .link-vcard:hover { color: var(--navy); }
-.link-vcard::before {
-  content: ""; flex: none; width: 13px; height: 13px;
-  background: currentColor;
-  -webkit-mask: var(--dl-icon) center / contain no-repeat;
-  mask: var(--dl-icon) center / contain no-repeat;
-}
+.link-vcard svg { flex: none; display: block; }
+/* only the label is underlined, so the icon does not sit on the rule */
+.link-vcard { text-decoration: none; }
+.link-vcard span { text-decoration: underline; text-underline-offset: 3px; }
 .contact-map { flex: 1 1 420px; min-width: min(300px, 100%); }
 .map-note { margin: 10px 0 0; font-size: 13px; color: var(--ink-soft); }
 
