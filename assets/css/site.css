@@ -508,7 +508,11 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
   transition: transform 250ms ease-out, visibility 0s linear 0s;
 }
 
-.drawer-head { display: flex; justify-content: flex-end; }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; }
+.drawer-title {
+  margin: 0; padding-left: 4px;
+  font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--navy);
+}
 .drawer-close {
   width: 44px; height: 44px; padding: 0;
   display: inline-flex; align-items: center; justify-content: center;
@@ -540,7 +544,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 .drawer-nav a {
   color: var(--navy); text-decoration: none;
   font-family: var(--serif); font-size: 21px; font-weight: 600;
-  padding: 14px 4px; border-bottom: 1px solid var(--line);
+  padding: 19px 4px; border-bottom: 1px solid var(--line);
 }
 .drawer-nav a:last-child { border-bottom: none; }
 .drawer-nav a:hover { color: var(--brown); }
@@ -621,6 +625,9 @@ html.menu-open, html.menu-open body { overflow: hidden; }
 @media (min-width: 904px) {
   .contact-map { display: flex; flex-direction: column; }
   .map-canvas { flex: 1 1 auto; height: auto; min-height: 382px; }
+  /* Nudge the row a touch past the column's last line so the map's solid
+     box reads as balanced against text that ends on a baseline. */
+  .contact-col { padding-bottom: 14px; }
 }
 .leaflet-container { border-radius: 6px; font: inherit; background: var(--cream-tint); }
 .map-pin { background: none; border: 0; }

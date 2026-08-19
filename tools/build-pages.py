@@ -221,8 +221,9 @@ def header(prefix=""):
 
   <div class="drawer-backdrop" data-drawer-close></div>
 
-  <div id="mobile-menu" class="drawer" role="dialog" aria-modal="true" aria-label="Menu">
+  <div id="mobile-menu" class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
     <div class="drawer-head">
+      <p class="drawer-title" id="drawer-title">Menu</p>
       <button type="button" class="drawer-close" data-drawer-close aria-label="Close menu">
         <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
           <path d="M4 4l12 12M16 4L4 16" fill="none" stroke="currentColor"
@@ -232,7 +233,7 @@ def header(prefix=""):
     </div>
 
     <a class="drawer-cta" href="tel:{PHONE_TEL}">Call or Text {PHONE_DISPLAY}</a>
-    <a class="drawer-email" href="mailto:{EMAIL_PAGE}">Email {EMAIL_PAGE}</a>
+    <a class="drawer-email" href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a>
 
     <hr class="drawer-divider">
 
@@ -244,8 +245,7 @@ def header(prefix=""):
       <li>43 years of lending</li>
       <li>CMA Board of Directors</li>
       <li>Direct lender</li>
-      <li>DRE #00898122</li>
-      <li>NMLS #285731</li>
+      <li>DRE #00898122 &middot; NMLS #285731</li>
     </ul>
   </div>'''
 

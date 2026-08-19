@@ -700,3 +700,27 @@ The copyright and the Stark Social credit were separate blocks and are now one
 line, keeping the earlier wording ("Website crafted by") rather than the
 shorthand in the layout sketch.
 
+### 26. Drawer refinements and map nudge
+
+Matched to the Claude Design reference:
+
+* A **Menu** label sits top-left of the drawer, opposite the close button. The
+  dialog is now `aria-labelledby` that heading rather than carrying a duplicate
+  `aria-label`, so the visible and accessible names are the same string.
+* The e-mail is the bare address, `info@asksw.com`, with no "Email" prefix.
+* Nav item padding went from 14px to 19px, about 36% more space between items.
+* The credentials line reads `DRE #00898122 · NMLS #285731` on one line
+  instead of two.
+
+**On the e-mail:** the reference mockup shows `Joffrey@asksw.com`, but the site
+standardised on `info@asksw.com` earlier. The drawer uses `info@`, and there are
+zero occurrences of the old address anywhere in the repo.
+
+**Map height.** It already matched the contact column exactly, so rather than
+setting a taller fixed height I added 14px of bottom padding to the column,
+which grows the flex row and takes the map with it. The two boxes stay equal and
+the map now finishes 14px below the column's last line of text, which is what
+reads as balanced when solid boxes sit beside text ending on a baseline. Doing
+it this way keeps the relationship content-relative rather than pinning a magic
+pixel value that would drift if the contact copy changes.
+
