@@ -10,13 +10,14 @@ PHP host, these fragments become the includes.
 Usage:  python3 tools/build-pages.py
 """
 import os
+import json
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 PHONE_DISPLAY = "(818) 635-1777"
 PHONE_TEL     = "+18186351777"
-EMAIL_PAGE    = "Joffrey@asksw.com"   # as it appears in the approved design
-EMAIL_SCHEMA  = "info@asksw.com"      # as supplied for structured data
+EMAIL_PAGE    = "info@asksw.com"      # confirmed with client 2026-08-19
+EMAIL_SCHEMA = EMAIL_PAGE             # page and structured data now agree
 PROD_URL      = "https://southwestdirect.com"
 UPDATED       = "August 19, 2026"
 
@@ -54,11 +55,11 @@ JSONLD = '''<script type="application/ld+json">
     { "@type": "PropertyValue", "name": "California DRE License", "value": "00898122" },
     { "@type": "PropertyValue", "name": "NMLS ID", "value": "285731" }
   ],
-  "employee": {
+  "founder": {
     "@type": "Person",
     "@id": "%(url)s/#joffrey-long",
     "name": "Joffrey Long",
-    "jobTitle": "Direct hard-money lender",
+    "jobTitle": "Owner",
     "telephone": "%(tel)s",
     "identifier": [
       { "@type": "PropertyValue", "name": "California DRE License", "value": "00525142" },
@@ -67,6 +68,41 @@ JSONLD = '''<script type="application/ld+json">
   }
 }
 </script>''' % {"url": PROD_URL, "tel": PHONE_TEL, "email": EMAIL_SCHEMA}
+
+
+# --------------------------------------------------------------------------
+# Responsive <picture> built from images/manifest.json, which build-images.py
+# writes. Driving it from the manifest means srcset can never advertise a
+# derivative that was not actually produced (Residential Rental Property has a
+# 750px source, so it has no 1100w variant while the others do).
+# --------------------------------------------------------------------------
+with open(os.path.join(ROOT, "images", "manifest.json")) as _f:
+    IMG = json.load(_f)
+
+
+def picture(slug, cls, alt, sizes, indent, lazy=True, priority=False):
+    m = IMG[slug]
+    ws = m["widths"]
+    w, h = m["intrinsic"]
+    pad = " " * indent
+    webp = ", ".join(f"images/{slug}-{x}.webp {x}w" for x in ws)
+    jpg = ", ".join(f"images/{slug}-{x}.jpg {x}w" for x in ws)
+    # <img src> is only used by browsers without srcset support, so point it at a
+    # mid-size derivative rather than the largest one.
+    fallback_w = ws[len(ws) // 2] if len(ws) > 1 else ws[0]
+    flags = 'loading="lazy" ' if lazy else ""
+    if priority:
+        flags += 'fetchpriority="high" '
+    return (
+        f'{pad}<picture>\n'
+        f'{pad}  <source type="image/webp" sizes="{sizes}"\n'
+        f'{pad}          srcset="{webp}">\n'
+        f'{pad}  <img class="{cls}" src="images/{slug}-{fallback_w}.jpg" sizes="{sizes}"\n'
+        f'{pad}       srcset="{jpg}"\n'
+        f'{pad}       width="{w}" height="{h}" {flags}decoding="async"\n'
+        f'{pad}       alt="{alt}">\n'
+        f'{pad}</picture>'
+    )
 
 
 def head(title, desc, page_path, og_type="website"):
@@ -163,7 +199,7 @@ def contact():
               title="Map showing the office location: 5151 California Ave STE 100, Irvine, California"
               src="https://www.openstreetmap.org/export/embed.html?bbox=-117.8630%2C33.6420%2C-117.8250%2C33.6650&amp;layer=mapnik&amp;marker=33.65350%2C-117.84400"
               loading="lazy"></iframe>
-      <p class="map-note"><a href="https://www.openstreetmap.org/?mlat=33.65350&amp;mlon=-117.84400#map=15/33.6535/-117.8440">View a larger map on OpenStreetMap</a></p>
+      <p class="map-note"><a href="https://www.openstreetmap.org/?mlat=33.65350&amp;mlon=-117.84400#map=15/33.6535/-117.8440">View larger map</a></p>
     </div>
   </section>'''
 
@@ -184,7 +220,7 @@ def footer(current=None):
       <p>Loans are primarily made (funded) and serviced by Southwest Bancorp under Calif. Dept of Real Estate Broker License no. 00898122. (<a href="https://www.dre.ca.gov">www.DRE.CA.gov</a>) Joffrey Long holds Calif. Dept. of Real Estate Broker License no. 00525142. Loans may also be arranged with entities owned by Southwest Bancorp or its owners, or with third party lenders.</p>
       <p>Investments in trust deeds secured by one or more interests in real property are subject to risk of loss. Southwest Bancorp does not make (fund) consumer purpose loans that are secured by 1-4 family residences. Those loans may be arranged with institutional lenders, under NMLS Identifier No. 285731 (Southwest Bancorp) and No. 207202 (Joffrey Long).</p>
     </div>
-    <p class="footer-meta">5151 California Ave STE 100, Irvine, CA 92617-3205 &middot; <a href="tel:{PHONE_TEL}">{PHONE_DISPLAY}</a> &middot; <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a></p>
+    <p class="footer-meta">5151 California Ave STE 100, Irvine, CA 92617-3205 &middot; <a href="tel:{PHONE_TEL}">818-635-1777</a> &middot; <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a></p>
   </div>
 </footer>'''
 
@@ -213,7 +249,7 @@ CARD_SIZES = "(min-width: 1168px) 341px, (min-width: 700px) 31vw, 92vw"
 
 PROPERTY_TYPES = [
     ("residential-rental-property", "Residential Rental Property", "1–4 units or 5–15 units",
-     "Two-story gray residential rental duplex with a garage, near the California coast",
+     "Two-story gray residential rental duplex with garage, near the coast",
      ["Credit and income problems OK", "Damaged, incomplete properties",
       "Low rents, problem properties", "Non-confirming, zoning issues", "Purchase or cash out"]),
     ("automotive-service-centers", "Automotive / Service Centers", "",
@@ -229,7 +265,7 @@ PROPERTY_TYPES = [
      ["Mixed, warehouse/service centers", "Older and newer buildings",
       "Legal, non-confirming OK", "Leased or owner-user"]),
     ("other-property-types", "Other Property Types", "",
-     "Single-story commercial building with a red awning and parking lot",
+     "Single-story commercial building with red awning and parking lot",
      ["Houses of worship", "Specialty properties", "Legal, non-confirming OK", "Truck parking lots"]),
 ]
 
@@ -238,14 +274,7 @@ def card(slug, title, note, alt, bullets):
     note_html = f'\n              <p class="card-note">{note}</p>' if note else ""
     lis = "\n".join(f"              <li>{b}</li>" for b in bullets)
     return f'''          <li class="card">
-            <picture>
-              <source type="image/webp" sizes="{CARD_SIZES}"
-                      srcset="images/{slug}-400.webp 400w, images/{slug}-750.webp 750w">
-              <img class="card-img" src="images/{slug}-750.jpg" sizes="{CARD_SIZES}"
-                   srcset="images/{slug}-400.jpg 400w, images/{slug}-750.jpg 750w"
-                   width="750" height="400" loading="lazy" decoding="async"
-                   alt="{alt}">
-            </picture>
+{picture(slug, "card-img", alt, CARD_SIZES, 12)}
             <div class="card-body">
               <h3 class="card-title">{title}</h3>{note_html}
               <ul class="card-list">
@@ -274,15 +303,9 @@ INDEX_BODY = f'''<main id="main">
         <p class="hero-note">You'll speak with Joffrey Long — a decision-maker, not a middleman.</p>
       </div>
       <div class="hero-figure">
-        <picture>
-          <source type="image/webp" sizes="(min-width: 900px) 320px, (min-width: 560px) 40vw, 80vw"
-                  srcset="images/joffrey-long-320.webp 320w, images/joffrey-long-640.webp 640w, images/joffrey-long-748.webp 748w">
-          <img class="hero-img" src="images/joffrey-long-640.jpg"
-               sizes="(min-width: 900px) 320px, (min-width: 560px) 40vw, 80vw"
-               srcset="images/joffrey-long-320.jpg 320w, images/joffrey-long-640.jpg 640w, images/joffrey-long-748.jpg 748w"
-               width="748" height="839" fetchpriority="high" decoding="async"
-               alt="Joffrey Long, direct hard-money lender">
-        </picture>
+{picture("joffrey-long", "hero-img", "Joffrey Long, direct hard-money lender",
+                   "(min-width: 900px) 320px, (min-width: 560px) 40vw, 80vw", 8,
+                   lazy=False, priority=True)}
       </div>
     </div>
   </section>
@@ -380,15 +403,9 @@ INDEX_BODY = f'''<main id="main">
   <!-- ABOUT -->
   <section id="about" class="wrap about" aria-labelledby="about-h">
     <figure class="about-figure">
-      <picture>
-        <source type="image/webp" sizes="(min-width: 900px) 300px, (min-width: 560px) 40vw, 80vw"
-                srcset="images/joffrey-long-320.webp 320w, images/joffrey-long-640.webp 640w, images/joffrey-long-748.webp 748w">
-        <img class="about-img" src="images/joffrey-long-640.jpg"
-             sizes="(min-width: 900px) 300px, (min-width: 560px) 40vw, 80vw"
-             srcset="images/joffrey-long-320.jpg 320w, images/joffrey-long-640.jpg 640w, images/joffrey-long-748.jpg 748w"
-             width="748" height="839" loading="lazy" decoding="async"
-             alt="Joffrey Long, hard-money lender and California Mortgage Association board member">
-      </picture>
+{picture("joffrey-long", "about-img",
+                 "Portrait of Joffrey Long",
+                 "(min-width: 900px) 300px, (min-width: 560px) 40vw, 80vw", 6)}
       <dl class="about-dl">
         <div class="about-row">
           <dt class="about-dt">Experience</dt>
@@ -462,8 +479,7 @@ INDEX_BODY = f'''<main id="main">
 A11Y_BODY = f'''<main id="main">
   <div class="page-head">
     <div class="page-head-inner">
-      <h1 class="page-title">Accessibility statement</h1>
-      <p class="page-sub">Our commitment to making SouthwestDirect.com usable by everyone, including people who use assistive technology.</p>
+      <h1 class="page-title">Accessibility Statement</h1>
     </div>
   </div>
 
@@ -473,62 +489,54 @@ A11Y_BODY = f'''<main id="main">
     <div class="toc">
       <h2>On this page</h2>
       <ul>
-        <li><a href="#commitment">Our commitment</a></li>
-        <li><a href="#standard">Conformance standard</a></li>
-        <li><a href="#measures">Measures we take</a></li>
-        <li><a href="#compatibility">Compatibility with browsers and assistive technology</a></li>
-        <li><a href="#limitations">Known limitations</a></li>
-        <li><a href="#feedback">Feedback and contact</a></li>
-        <li><a href="#formal">Formal complaints</a></li>
+        <li><a href="#commitment">Our Commitment</a></li>
+        <li><a href="#standards">Standards We Follow</a></li>
+        <li><a href="#features">Accessibility Features</a></li>
+        <li><a href="#ongoing">Ongoing Effort</a></li>
+        <li><a href="#accommodations">Requesting Accommodations or Reporting Barriers</a></li>
+        <li><a href="#third-party">Third-Party Content</a></li>
+        <li><a href="#complaints">Formal Complaints</a></li>
       </ul>
     </div>
 
-    <h2 id="commitment">Our commitment</h2>
-    <p>Joffrey Long / SouthwestDirect.com is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone and applying the relevant accessibility standards.</p>
+    <h2 id="commitment">Our Commitment</h2>
+    <p>Southwest Bancorp is committed to ensuring that our website — SouthwestDirect.com — is accessible to all users, including those with disabilities. We believe that access to information and financial services should not be limited by ability, and we work continuously to meet or exceed the standards set by the Americans with Disabilities Act (ADA) and the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA.</p>
 
-    <h2 id="standard">Conformance standard</h2>
-    <p>The <a href="https://www.w3.org/TR/WCAG21/">Web Content Accessibility Guidelines (WCAG)</a> define requirements for designers and developers to improve accessibility for people with disabilities. They define three levels of conformance: Level A, Level AA, and Level AAA.</p>
-    <p>SouthwestDirect.com is <strong>fully conformant with WCAG 2.1 Level AA</strong>. Fully conformant means that the content fully conforms to the accessibility standard without any exceptions.</p>
+    <h2 id="standards">Standards We Follow</h2>
+    <p>This website has been designed and built to conform with the Web Content Accessibility Guidelines (WCAG) 2.1, Level AA, published by the World Wide Web Consortium (W3C). These guidelines explain how to make web content more accessible for people with disabilities, and more user-friendly for everyone.</p>
 
-    <h2 id="measures">Measures we take</h2>
-    <p>We take the following measures to ensure accessibility:</p>
+    <h2 id="features">Accessibility Features</h2>
+    <p>The following measures have been implemented to make this site accessible:</p>
     <ul>
-      <li>Include accessibility as a requirement when we design and build pages.</li>
-      <li>Use semantic HTML landmarks so screen reader users can navigate by region.</li>
-      <li>Provide a "skip to main content" link on every page.</li>
-      <li>Provide meaningful alternative text for every image that conveys information.</li>
-      <li>Maintain colour contrast that meets or exceeds WCAG 2.1 Level AA ratios.</li>
-      <li>Ensure every interactive element is reachable and operable with a keyboard alone, with a clearly visible focus indicator.</li>
-      <li>Respect the operating system "reduce motion" preference.</li>
-      <li>Test pages with automated tooling and manual keyboard and screen reader checks.</li>
+      <li><strong>Semantic HTML markup</strong> so screen readers and assistive technology can accurately interpret page structure</li>
+      <li><strong>Keyboard navigation</strong> for all interactive elements, with visible focus indicators</li>
+      <li><strong>A “Skip to main content” link</strong> that allows keyboard and screen-reader users to bypass repeated navigation</li>
+      <li><strong>Descriptive alternative text</strong> for all images that convey information</li>
+      <li><strong>Sufficient color contrast</strong> between text and background across every page</li>
+      <li><strong>Responsive design</strong> that adapts to phones, tablets, and desktop screens without loss of functionality</li>
+      <li><strong>Clear and consistent navigation</strong> across all pages</li>
+      <li><strong>Descriptive link text</strong> that makes sense out of context</li>
+      <li><strong>Properly structured headings</strong> to help users navigate content</li>
     </ul>
 
-    <h2 id="compatibility">Compatibility with browsers and assistive technology</h2>
-    <p>SouthwestDirect.com is designed to be compatible with recent versions of the following:</p>
-    <ul>
-      <li>Chrome, Edge, Firefox, and Safari on desktop.</li>
-      <li>Safari on iOS and Chrome on Android.</li>
-      <li>VoiceOver on macOS and iOS, NVDA and JAWS on Windows, and TalkBack on Android.</li>
-    </ul>
-    <p>This site does not rely on JavaScript for any of its content or navigation.</p>
+    <h2 id="ongoing">Ongoing Effort</h2>
+    <p>Accessibility is an ongoing effort rather than a one-time milestone. We regularly review this site for accessibility issues and address any problems as they are identified. As we update content or add new features, we work to maintain conformance with WCAG 2.1 Level AA.</p>
 
-    <h2 id="limitations">Known limitations</h2>
-    <p>Despite our best efforts, some limitations may remain. Below is a list of known issues, along with potential solutions. Please contact us if you encounter a problem not listed here.</p>
+    <h2 id="accommodations">Requesting Accommodations or Reporting Barriers</h2>
+    <p>If you experience any difficulty accessing information or using any feature of this website, or if you have suggestions for how we can improve accessibility, please contact us. We will make every reasonable effort to provide the information you need in an alternative format and to address the issue.</p>
+    <p><strong>Contact for accessibility concerns:</strong></p>
     <ul>
-      <li><strong>Embedded map.</strong> The office location map is provided by OpenStreetMap, a third party. Its interactive controls may not fully meet Level AA. The complete office address is always provided as text immediately beside the map, so no information is available only within the map.</li>
+      <li><strong>Phone:</strong> <a href="tel:{PHONE_TEL}">{PHONE_DISPLAY}</a></li>
+      <li><strong>Email:</strong> <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a></li>
+      <li><strong>Mail:</strong> Southwest Bancorp, 5151 California Ave STE 100, Irvine, CA 92617-3205</li>
     </ul>
+    <p>We aim to respond to accessibility inquiries within three business days.</p>
 
-    <h2 id="feedback">Feedback and contact</h2>
-    <p>We welcome your feedback on the accessibility of SouthwestDirect.com. If you encounter a barrier, or need information on this site in a different format, please let us know:</p>
-    <ul>
-      <li>Phone: <a href="tel:{PHONE_TEL}">{PHONE_DISPLAY}</a></li>
-      <li>E-mail: <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a></li>
-      <li>Postal address: 5151 California Ave STE 100, Irvine, CA 92617-3205</li>
-    </ul>
-    <p>We try to respond to accessibility feedback within five business days.</p>
+    <h2 id="third-party">Third-Party Content</h2>
+    <p>While we work to ensure our own content meets accessibility standards, we cannot guarantee the accessibility of third-party content or services linked from this site (for example, external regulatory websites such as www.DRE.CA.gov). If you encounter accessibility barriers on linked sites, we encourage you to contact those providers directly.</p>
 
-    <h2 id="formal">Formal complaints</h2>
-    <p>If you contact us with a complaint and are not satisfied with our response, you may escalate the matter. In the United States, complaints regarding accessibility may be directed to the U.S. Department of Justice Civil Rights Division.</p>
+    <h2 id="complaints">Formal Complaints</h2>
+    <p>If you are not satisfied with our response to an accessibility concern, you may file a complaint with the U.S. Department of Justice, Civil Rights Division, at <a href="https://www.ada.gov">ada.gov</a> or by calling <a href="tel:+18005140301">(800) 514-0301</a>.</p>
   </div>
 
   {contact()}
@@ -538,93 +546,137 @@ A11Y_BODY = f'''<main id="main">
 PRIVACY_BODY = f'''<main id="main">
   <div class="page-head">
     <div class="page-head-inner">
-      <h1 class="page-title">Privacy policy &amp; terms of service</h1>
-      <p class="page-sub">How we handle information you share with us, and the terms that apply to your use of this website.</p>
+      <h1 class="page-title">Privacy Policy &amp; Terms of Service</h1>
     </div>
   </div>
 
   <div class="prose">
     <p class="updated">Last updated: {UPDATED}</p>
 
+    <p class="lead"><em>This page combines our Privacy Policy and Terms of Service into a single document for clarity. Please read both sections carefully. By using SouthwestDirect.com, you agree to these terms.</em></p>
+
     <div class="toc">
       <h2>On this page</h2>
       <ul>
-        <li><a href="#privacy">Part one — Privacy policy</a></li>
-        <li><a href="#terms">Part two — Terms of service</a></li>
+        <li><a href="#privacy">Privacy Policy</a></li>
+        <li><a href="#terms">Terms of Service</a></li>
       </ul>
     </div>
 
-    <h2 id="privacy">Part one — Privacy policy</h2>
+    <h2 id="privacy">Privacy Policy</h2>
 
-    <h3>Who we are</h3>
-    <p>This website is operated by Southwest Bancorp, doing business as Joffrey Long / SouthwestDirect.com, 5151 California Ave STE 100, Irvine, CA 92617-3205.</p>
+    <h3>Introduction</h3>
+    <p>Southwest Bancorp (“we,” “us,” “our”) operates SouthwestDirect.com (the “Site”). This Privacy Policy explains what information we collect when you visit the Site, how we use it, and your rights regarding that information.</p>
+    <p>This policy applies only to information collected through this website. It does not cover information you provide to us through other channels — telephone conversations, email correspondence, loan applications, or in-person meetings — which is governed by our lending disclosures and applicable financial-privacy laws (see “Financial Privacy” below).</p>
 
-    <h3>Information we collect</h3>
-    <p>This website does not have contact forms and does not require you to create an account. We collect personal information only when you choose to give it to us — for example, when you call, text, or e-mail us about a loan.</p>
-    <p>Information you provide in that way may include your name, telephone number, e-mail address, details of the property involved, and financial information relevant to a loan request.</p>
+    <h3>Information We Collect</h3>
+    <p><strong>We collect very little information through this website.</strong> SouthwestDirect.com is a static informational site. We do not use cookies, analytics tracking, advertising pixels, session recording, or any other tools that collect visitor data automatically. We do not have contact forms on this site.</p>
+    <p>The only way information is transmitted to us through this website is if you choose to call, text, or email us using the contact information provided. In that case, we receive whatever information you provide in your communication — your name, phone number, email address, and the content of your message.</p>
 
-    <h3>How we use information</h3>
-    <p>We use information you provide to respond to your enquiry, evaluate and process loan requests, service loans we make, and meet our legal, regulatory, and licensing obligations. We do not sell your personal information.</p>
+    <h3>How We Use Information You Send Us</h3>
+    <p>If you contact us via phone, text, or email using the information listed on the Site, we use that information solely to:</p>
+    <ul>
+      <li>Respond to your inquiry</li>
+      <li>Discuss potential lending opportunities</li>
+      <li>Provide requested information about our services</li>
+    </ul>
+    <p>We do not sell, rent, or share your contact information with third parties for marketing purposes.</p>
 
-    <h3>Sharing information</h3>
-    <p>We may share information with third parties where it is necessary to evaluate, fund, or service a loan — for example with escrow and title companies, appraisers, credit reporting agencies, loan servicers, and private party investors to whom a loan is sold after funding. We may also disclose information where required by law or regulation.</p>
+    <h3>Financial Privacy (Gramm-Leach-Bliley Act)</h3>
+    <p>If you become a borrower or otherwise establish a customer relationship with Southwest Bancorp, we collect and use nonpublic personal information as required to originate, fund, and service your loan. Our full financial-privacy practices — including your rights under the Gramm-Leach-Bliley Act (GLBA) — are provided in the disclosures you receive as part of the loan application and closing process.</p>
 
-    <h3>Cookies and analytics</h3>
-    <p>This website does not set advertising or tracking cookies. Map content is embedded from OpenStreetMap and web fonts are served by Google Fonts; those third parties may receive your IP address as a normal part of delivering that content, subject to their own privacy policies.</p>
+    <h3>California Consumer Rights (CCPA / CPRA)</h3>
+    <p>If you are a California resident, the California Consumer Privacy Act (CCPA) and California Privacy Rights Act (CPRA) provide you with certain rights regarding personal information we collect about you. These include the right to:</p>
+    <ul>
+      <li>Know what personal information we collect and how we use it</li>
+      <li>Request deletion of your personal information (subject to legal retention requirements)</li>
+      <li>Correct inaccurate personal information</li>
+      <li>Opt out of the sale or sharing of personal information (note: we do not sell or share personal information)</li>
+      <li>Non-discrimination for exercising your CCPA rights</li>
+    </ul>
+    <p>To exercise any of these rights, contact us at <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a> or <a href="tel:{PHONE_TEL}">{PHONE_DISPLAY}</a>. We will verify your identity before responding to your request and will respond within the timeframes required by law.</p>
 
-    <h3>Data retention and security</h3>
-    <p>We retain personal information for as long as necessary to fulfil the purposes described above and to satisfy legal and regulatory record-keeping requirements. We maintain reasonable administrative, technical, and physical safeguards designed to protect that information.</p>
+    <h3>Information Security</h3>
+    <p>We take reasonable measures to protect the information you send us. However, no method of transmission over the internet is 100% secure. Please do not send sensitive information (such as Social Security numbers, financial account numbers, or copies of identification documents) via unencrypted email. If you need to transmit sensitive information, please call us to arrange a secure method.</p>
 
-    <h3>Your California privacy rights</h3>
-    <p>California residents may have rights under the California Consumer Privacy Act, as amended, including the right to know what personal information we have collected, the right to request deletion, the right to correct inaccurate information, and the right not to be discriminated against for exercising those rights. Certain information collected in connection with a loan application is regulated by the Gramm-Leach-Bliley Act and may be exempt from some of these rights.</p>
-    <p>To make a request, contact us using the details below. We will verify your identity before acting on a request.</p>
+    <h3>Children’s Privacy</h3>
+    <p>This Site is not directed to children under 13, and we do not knowingly collect information from children under 13.</p>
 
-    <h3>Children</h3>
-    <p>This website is not directed to children under 13 and we do not knowingly collect personal information from them.</p>
+    <h3>Changes to This Policy</h3>
+    <p>We may update this Privacy Policy from time to time. When we do, we will post the updated policy on this page with a revised “Last updated” date at the top.</p>
 
-    <h3>Changes to this policy</h3>
-    <p>We may update this policy from time to time. The date at the top of this page shows when it was last revised.</p>
+    <h3>Contact Us About Privacy</h3>
+    <p>Questions about this Privacy Policy:</p>
+    <ul>
+      <li><strong>Phone:</strong> <a href="tel:{PHONE_TEL}">{PHONE_DISPLAY}</a></li>
+      <li><strong>Email:</strong> <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a></li>
+      <li><strong>Mail:</strong> Southwest Bancorp, 5151 California Ave STE 100, Irvine, CA 92617-3205</li>
+    </ul>
 
-    <h3>Contacting us about privacy</h3>
-    <p>Questions or requests may be directed to <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a> or <a href="tel:{PHONE_TEL}">{PHONE_DISPLAY}</a>, or by post to the address above.</p>
+    <h2 id="terms">Terms of Service</h2>
 
-    <h2 id="terms">Part two — Terms of service</h2>
+    <h3>Acceptance of Terms</h3>
+    <p>By accessing or using SouthwestDirect.com (the “Site”), you agree to be bound by these Terms of Service. If you do not agree, please do not use the Site.</p>
 
-    <h3>Acceptance</h3>
-    <p>By accessing or using this website you agree to these terms. If you do not agree, please do not use the site.</p>
+    <h3>About Southwest Bancorp</h3>
+    <p>Southwest Bancorp is a licensed real estate broker and mortgage lender operating in California. Our lending activities are regulated by the California Department of Real Estate (DRE) and, where applicable, subject to the requirements of the Nationwide Multistate Licensing System (NMLS).</p>
+    <ul>
+      <li><strong>Southwest Bancorp:</strong> California DRE Broker License No. 00898122; NMLS ID No. 285731</li>
+      <li><strong>Joffrey Long:</strong> California DRE Broker License No. 00525142; NMLS ID No. 207202</li>
+    </ul>
+    <p>Our license status may be verified at <a href="https://www.DRE.CA.gov">www.DRE.CA.gov</a> and <a href="https://www.nmlsconsumeraccess.org">www.nmlsconsumeraccess.org</a>.</p>
 
-    <h3>Not an offer or a commitment to lend</h3>
-    <p>The content of this website is provided for general information only. Nothing on this site is an offer, a solicitation of an offer, a commitment to lend, or an approval of any loan. All loans are subject to underwriting, property evaluation, and credit approval, and terms are subject to change without notice. Rates, terms, and programmes described here may not be available for every property or borrower.</p>
+    <h3>Nature of Information Provided</h3>
+    <p>The information on this Site is provided for general informational purposes only. It is not, and should not be relied upon as:</p>
+    <ul>
+      <li>An offer to lend or extend credit</li>
+      <li>A commitment to make a loan on any specific terms</li>
+      <li>Legal, tax, financial, or investment advice</li>
+      <li>A guarantee of loan approval, interest rate, or loan terms</li>
+    </ul>
+    <p>Every lending decision depends on individual circumstances, the specific property, market conditions, and underwriting review. Any loan terms discussed will be formalized only through a written loan agreement.</p>
 
-    <h3>Licensing</h3>
-    <p>Loans are primarily made (funded) and serviced by Southwest Bancorp under California Department of Real Estate Broker License no. 00898122. Joffrey Long holds California Department of Real Estate Broker License no. 00525142. NMLS Identifier No. 285731 (Southwest Bancorp) and No. 207202 (Joffrey Long). Southwest Bancorp does not make (fund) consumer purpose loans secured by 1-4 family residences.</p>
+    <h3>What We Do</h3>
+    <p>Southwest Bancorp originates and services real estate loans primarily to real estate investors and business owners for investment or business purposes. We do not fund consumer-purpose loans secured by 1-4 family residences directly; those loans, where offered, may be arranged with institutional lenders under NMLS Identifier No. 285731 (Southwest Bancorp) and No. 207202 (Joffrey Long).</p>
+    <p>We lend in California only. We do not make loans on vacant land (unless producing rental income), or in rural or very small communities.</p>
 
-    <h3>No professional advice</h3>
-    <p>Nothing on this website constitutes legal, tax, accounting, or investment advice. You should consult your own advisers before entering into any transaction.</p>
+    <h3>Investment Risk Disclosure</h3>
+    <p>Investments in trust deeds secured by one or more interests in real property are subject to risk of loss, including loss of principal. Past performance does not guarantee future results. Any investment described or referenced on this Site is offered only to qualified investors and only after the loan has been initially funded and closed by Southwest Bancorp.</p>
 
-    <h3>Investment risk</h3>
-    <p>Investments in trust deeds secured by one or more interests in real property are subject to risk of loss.</p>
+    <h3>Third-Party Links</h3>
+    <p>This Site may contain links to third-party websites (for example, regulatory sites such as www.DRE.CA.gov). We provide these links for convenience only. We are not responsible for the content, accuracy, privacy practices, or availability of any third-party site.</p>
 
-    <h3>Intellectual property</h3>
-    <p>All content on this website, including text, images, and design, is owned by or licensed to Southwest Bancorp and may not be reproduced or distributed without written permission.</p>
+    <h3>Intellectual Property</h3>
+    <p>The content of this Site — including text, graphics, images, logos, and layout — is owned by or licensed to Southwest Bancorp and is protected by U.S. copyright and trademark laws. You may view and print pages of this Site for your personal, non-commercial use. Any other use — including reproduction, republication, distribution, or modification — requires our prior written consent.</p>
 
-    <h3>Third party links</h3>
-    <p>This site links to third party websites, including the California Department of Real Estate and OpenStreetMap. We are not responsible for the content, availability, or privacy practices of those sites.</p>
+    <h3>Prohibited Uses</h3>
+    <p>You agree not to use this Site to:</p>
+    <ul>
+      <li>Attempt to gain unauthorized access to any portion of the Site or its underlying systems</li>
+      <li>Interfere with the Site’s operation or security</li>
+      <li>Use automated tools to scrape, harvest, or extract content in violation of applicable law</li>
+      <li>Submit false, misleading, or fraudulent information in any communication with us</li>
+    </ul>
 
-    <h3>Disclaimer of warranties</h3>
-    <p>This website is provided on an "as is" and "as available" basis without warranties of any kind, express or implied, to the fullest extent permitted by law.</p>
+    <h3>Limitation of Liability</h3>
+    <p>To the fullest extent permitted by law, Southwest Bancorp and its officers, directors, employees, and affiliates will not be liable for any indirect, incidental, consequential, special, or punitive damages arising out of or related to your use of this Site or your reliance on any information provided through it.</p>
+    <p>The Site and its content are provided “as is” without warranties of any kind, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement.</p>
 
-    <h3>Limitation of liability</h3>
-    <p>To the fullest extent permitted by law, Southwest Bancorp and Joffrey Long will not be liable for any indirect, incidental, consequential, or punitive damages arising out of your use of, or inability to use, this website.</p>
+    <h3>Governing Law and Jurisdiction</h3>
+    <p>These Terms are governed by the laws of the State of California, without regard to conflict-of-law principles. Any dispute arising out of or relating to these Terms or your use of the Site will be resolved exclusively in the state or federal courts located in Orange County, California, and you consent to the personal jurisdiction of those courts.</p>
 
-    <h3>Governing law</h3>
-    <p>These terms are governed by the laws of the State of California, without regard to its conflict of law rules. Any dispute will be brought in the state or federal courts located in Orange County, California.</p>
+    <h3>Changes to These Terms</h3>
+    <p>We may update these Terms from time to time. When we do, we will post the updated Terms on this page with a revised “Last updated” date. Your continued use of the Site after changes are posted constitutes your acceptance of the revised Terms.</p>
 
-    <h3>Changes to these terms</h3>
-    <p>We may revise these terms at any time. Continued use of the site after a change constitutes acceptance of the revised terms.</p>
+    <h3>Contact Us About These Terms</h3>
+    <p>Questions about these Terms of Service:</p>
+    <ul>
+      <li><strong>Phone:</strong> <a href="tel:{PHONE_TEL}">{PHONE_DISPLAY}</a></li>
+      <li><strong>Email:</strong> <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a></li>
+      <li><strong>Mail:</strong> Southwest Bancorp, 5151 California Ave STE 100, Irvine, CA 92617-3205</li>
+    </ul>
 
-    <h3>Contact</h3>
-    <p>Questions about these terms may be directed to <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a> or <a href="tel:{PHONE_TEL}">{PHONE_DISPLAY}</a>.</p>
+    <p class="closing"><em>Southwest Bancorp is an equal opportunity lender.</em></p>
   </div>
 
   {contact()}
@@ -637,12 +689,12 @@ PAGES = [
      "Direct hard-money lending for California real estate investors. Talk to Joffrey Long, a decision-maker, not a middleman. Close in 5–12 days. DRE #00898122, NMLS #285731.",
      INDEX_BODY, None, ""),
     ("accessibility-statement.html",
-     "Accessibility statement | Joffrey Long / SouthwestDirect.com",
-     "Our commitment to WCAG 2.1 Level AA accessibility on SouthwestDirect.com, known limitations, and how to give us feedback.",
+     "Accessibility Statement | Joffrey Long / SouthwestDirect.com",
+     "Southwest Bancorp's commitment to WCAG 2.1 Level AA and ADA accessibility on SouthwestDirect.com, and how to report a barrier.",
      A11Y_BODY, "a11y", "index.html"),
     ("privacy-terms.html",
-     "Privacy policy & terms of service | Joffrey Long / SouthwestDirect.com",
-     "How Joffrey Long / SouthwestDirect.com handles your information, and the terms that apply to your use of this website.",
+     "Privacy Policy & Terms of Service | Joffrey Long / SouthwestDirect.com",
+     "Privacy Policy and Terms of Service for SouthwestDirect.com, operated by Southwest Bancorp. No cookies, no tracking, no contact forms.",
      PRIVACY_BODY, "privacy", "index.html"),
 ]
 

@@ -84,26 +84,32 @@ Requires Python 3 with Pillow (`pip3 install Pillow`).
 
 Things I decided or could not resolve. Worth a look before this goes to Joffrey.
 
-### 1. Five images are placeholders — real files needed
+### 1. Images — resolved, all real
 
-The design canvas exposes files through a transfer capped at 192 KB, and six of
-the seven source images are larger than that, so they arrived truncated and
-would not decode. Only **Residential Rental Property** came through intact and
-is the real photo on the page.
+All six photographs were recovered from the bundled Design preview
+(`SouthwestDirect Website.html`), which carries every asset base64-encoded in its
+`<script type="__bundler/manifest">` tag. The earlier truncation was a transfer
+cap on the design MCP, not a problem with the files.
 
-These five currently render as a hatched "PHOTO PENDING" panel at the correct
-aspect ratio:
+Originals now live in `images/_src/`:
 
-- `joffrey-long` — the portrait, used in **two** places (hero and About)
-- `automotive-service-centers`
-- `mixed-use`
-- `industrial-warehouse`
-- `other-property-types`
+| File | Source | Pixels |
+| --- | --- | --- |
+| `joffrey-long.png` | manifest `dee75825…` | 748 × 839 |
+| `Residential-Rental-Property.webp` | `ext_resources` → `ptRes` | 750 × 400 |
+| `Automotive-Service-Centers.webp` | `ptAuto` | 2560 × 1928 |
+| `Other-Property-Types.webp` | `ptOther` | 2122 × 1412 |
+| `Industrial-Warehouse.webp` | `ptInd` | 2560 × 1920 |
+| `Mix-Use.webp` | `ptMix` | 2560 × 1928 |
 
-To fix: drop the full-size originals into `images/_src/` using the filenames
-listed in `tools/build-images.py`, then run `python3 tools/build-images.py`.
-Every derivative and the `<picture>` markup is already wired up, so the real
-photos appear with no HTML edits.
+Because four sources turned out to be ~2560px wide, the card derivatives now go
+to three tiers — 400 / 750 / 1100 — instead of two. Residential Rental Property
+has only a 750px original, so it stops at 750 and never upscales.
+
+`build-images.py` writes `images/manifest.json` recording which widths actually
+exist per image, and `build-pages.py` builds every `srcset` from that file. The
+markup therefore cannot advertise a derivative that was not produced — which is
+what keeps the Residential card's shorter srcset honest.
 
 ### 2. The AI illustration is out
 
@@ -116,18 +122,16 @@ HTML comment marks the spot in `index.html`:
 The page reads fine without it — contact now runs straight into the footer. Drop
 a licensed photo in and restore the band before launch.
 
-### 3. Two different e-mail addresses
+The bundled Design preview still contains this image (manifest `50bb048f…`,
+~2.4 MB JPEG). It was deliberately **not** extracted. That 320px band is the
+only reason our page is shorter than the approved design.
 
-The approved design shows **Joffrey@asksw.com** in the hero, contact block, and
-footer. The business details you sent list **info@asksw.com**.
+### 3. E-mail address — resolved
 
-I kept `Joffrey@asksw.com` everywhere it is visible on the page, because the
-design is approved and the copy leans on reaching Joffrey personally. I used
-`info@asksw.com` in the Schema.org block, as specified.
-
-**That inconsistency should be resolved before launch** — search engines compare
-the structured data against what is on the page. Tell me which one wins and it
-is a one-line change in `tools/build-pages.py`.
+Confirmed with the client on 19 August 2026: **info@asksw.com** everywhere. It
+now appears in the hero, the contact block, the footer, both legal pages, and
+the Schema.org `email` field. The old personal address is gone from every page.
+Page copy and structured data now agree, which is what search engines check.
 
 ### 4. The area code does not match the address
 
@@ -146,20 +150,23 @@ I added a single lighter tint, `#C19661` (**5.04:1**), used *only* for text on
 navy. The brand gold is unchanged everywhere else — buttons, rules, step
 markers, separators. Visually it is a small shift on one label.
 
-### 6. The legal pages are templates, not reviewed copy
+### 6. Legal pages — both final
 
-`accessibility-statement.html` and `privacy-terms.html` follow standard WCAG 2.1
-AA and privacy/ToS structures and are populated with the real business details,
-licence numbers, and disclosure language from the design. They are **not legal
-advice and have not been reviewed by an attorney.**
+Both pages now carry the client's final copy, placed verbatim and verified
+paragraph by paragraph against the source. Wording was not changed.
 
-For a licensed lender that matters more than usual — the privacy section touches
-CCPA and Gramm-Leach-Bliley, and the terms section makes representations about
-licensing and lending. **Have counsel review both before launch.**
+The only additions are markup: phone numbers and e-mail addresses linked
+(`tel:` / `mailto:`), the DRE, NMLS and ADA URLs made real links, and an
+"On this page" index at the top of each. Headings map to `<h2>` for top-level
+sections and `<h3>` beneath, so both pages keep a clean outline.
 
-Also note the accessibility statement claims *"fully conformant with WCAG 2.1
-Level AA"*, which is the standard template wording and matches what I measured.
-If anything on the page changes materially, that claim needs re-checking.
+Both still warrant counsel review before launch — the privacy page touches
+CCPA/CPRA and Gramm-Leach-Bliley, and the terms page makes licensing
+representations. That is the client's call, not a blocker for the preview.
+
+The accessibility statement claims conformance with WCAG 2.1 Level AA, which
+matches what I measured on this build. If the page changes materially later,
+re-check that claim.
 
 ### 7. Structured data modelling
 
@@ -169,9 +176,10 @@ has no DRE or NMLS property, so all four licence numbers are `PropertyValue`
 identifiers: the two company numbers on the organisation, Joffrey's two on a
 nested `Person`.
 
-I set his role to `employee` with `jobTitle: "Direct hard-money lender"`. Given
-the branding he is more likely owner or broker of record — **tell me the correct
-role** and I will change it.
+Joffrey is attached as `founder` with `jobTitle: "Owner"`. `founder` is a real
+schema.org property on `Organization`, so the block validates cleanly, and the
+`jobTitle` carries the human-readable role. (An earlier pass used `owner`, which
+is not in the vocabulary; you called that correctly.)
 
 Deliberately omitted rather than guessed: `openingHours`, `priceRange`, `geo`,
 and `sameAs`. Google likes `priceRange` on a LocalBusiness; send me a value and
@@ -190,6 +198,9 @@ I will add it.
   more useful than a marginal saving while the design is still under review.
 - **The map** is an OpenStreetMap embed, carried over from the design. It costs
   nothing and needs no API key, unlike Google Maps.
+- **No JavaScript ships with this site.** The only `<script>` tag on any page is
+  the `application/ld+json` structured-data block, which is inert data. There is
+  no `.js` file in the repo.
 
 ### 9. What the accessibility pass changed
 
@@ -217,3 +228,48 @@ Verified: one `<h1>` per page and no heading-level skips, every image has
 meaningful alt text, all landmarks and `<nav>`s labelled, no duplicate IDs, no
 broken in-page anchors, the map `<iframe>` titled, and no horizontal overflow
 from 280 px to 1440 px on all three pages.
+
+### 10. Design fidelity — verified against the bundled preview
+
+I rendered the approved bundle and this build side by side at 1440px and compared
+them programmatically rather than by eye.
+
+**Typography and colour:** 122 text nodes in our build, 119 aligned positionally
+against the bundle. For each I compared font family, size, weight, colour,
+text-transform, letter-spacing and line-height. **One** difference: the "For loan
+brokers" eyebrow, which is the deliberate contrast fix in note 5. The three
+unaligned nodes are the three `info@asksw.com` changes.
+
+**Geometry:** every section — header, hero, trust bar, how-it-works, property
+types, terms, brokers, about, contact, footer — now matches the bundle exactly on
+top offset, height and width. Total document height differs by 320px, which is
+precisely the removed Firefly band.
+
+**Alt text:** every image alt now matches the design string for string.
+
+Two real divergences were found and fixed:
+
+1. **The content column was 48px narrow.** The design's containers are
+   `max-width: 1120px` under the browser default `content-box`, so they render
+   1168px wide including their 24px gutters. This build sets `box-sizing:
+   border-box` globally, which made 1120px the *outer* width and squeezed the
+   text column to 1072px. Every section was affected. `--wrap` is now 1168px, so
+   the content column measures 1120px as designed.
+
+2. **Two fixed heights lost a border.** Same root cause: `.card-img` (180px +
+   1px bottom border) and `.map-frame` (380px + 1px top and bottom) are
+   content-box in the design. Under border-box they came out 1px and 2px short,
+   which compounded into a 2px drift for every section below the property cards.
+   Both now declare the design's total height.
+
+Three copy edits I had made were reverted to match the approved design: the
+footer phone reads `818-635-1777` again (not the parenthesised form), the map
+link reads "View larger map", and three alt strings are back to the design's
+wording.
+
+Two intentional differences remain, both visually identical to the design: the
+trust-bar `·` separators and the terms-list `—` markers are drawn with CSS
+`::before` instead of `aria-hidden` elements in the DOM. They were decorative and
+`aria-hidden` in the design, so this is equivalent — and it stops the separators
+from being counted as list items by screen readers. The geometry check confirms
+both sections match the design to the pixel.

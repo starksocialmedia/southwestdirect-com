@@ -22,7 +22,10 @@
   --rule-dark:    rgba(250, 250, 247, 0.25);
   --serif: 'Source Serif 4', Georgia, serif;
   --sans:  Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --wrap:  1120px;
+  /* The design's containers are content-box `max-width: 1120px` + 24px padding,
+     i.e. 1168px outer. This build is border-box, so the token is the outer
+     width and the content column comes out at 1120px, matching the design. */
+  --wrap:  1168px;
   --header-h: 84px;
 }
 
@@ -192,7 +195,10 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 /* --- Property type cards ------------------------------------------------ */
 .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 24px; }
 .card { background: var(--cream); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; }
-.card-img { display: block; width: 100%; height: 180px; object-fit: cover; border-bottom: 1px solid var(--line); }
+/* 181px = the design's 180px image box + its 1px bottom border. Stated as the
+   total here because this build is border-box, which keeps width: 100% honest. */
+.card-img { display: block; width: 100%; height: 181px; object-fit: cover;
+            border-bottom: 1px solid var(--line); }
 .card-body { padding: 24px 28px 28px; display: flex; flex-direction: column; gap: 14px; }
 .card-title { margin: 0; font-size: 19px; font-weight: 700; color: var(--navy); }
 .card-note { margin: -6px 0 0; font-size: 14px; font-weight: 600; color: var(--brown); }
@@ -262,7 +268,8 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 .contact-email:hover { color: var(--brown); }
 .contact-address { font-size: 16px; line-height: 1.6; color: var(--ink); }
 .contact-map { flex: 1 1 420px; min-width: min(300px, 100%); }
-.map-frame { width: 100%; height: 380px; border: 1px solid var(--line); border-radius: 6px; }
+/* 382px = the design's 380px frame + 1px border top and bottom. */
+.map-frame { width: 100%; height: 382px; border: 1px solid var(--line); border-radius: 6px; }
 .map-note { margin: 10px 0 0; font-size: 13px; color: var(--ink-soft); }
 
 /* --- Footer ------------------------------------------------------------- */
@@ -287,10 +294,10 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 
 /* --- Legal / prose pages ------------------------------------------------ */
 .page-head { border-bottom: 1px solid var(--line); }
-.page-head-inner { max-width: 72ch; margin: 0 auto; padding: 64px 24px 48px; }
+.page-head-inner { max-width: calc(72ch + 48px); margin: 0 auto; padding: 64px 24px 48px; }
 .page-title { margin: 0 0 12px; font-family: var(--serif); font-weight: 700; font-size: clamp(32px, 4vw, 46px); line-height: 1.1; color: var(--navy); text-wrap: balance; }
 .page-sub { margin: 0; font-size: 17px; line-height: 1.55; color: var(--ink-soft); max-width: 60ch; }
-.prose { max-width: 72ch; margin: 0 auto; padding: 64px 24px 80px; font-size: 16px; line-height: 1.7; color: var(--ink); }
+.prose { max-width: calc(72ch + 48px); margin: 0 auto; padding: 64px 24px 80px; font-size: 16px; line-height: 1.7; color: var(--ink); }
 .prose h2 { margin: 44px 0 12px; font-family: var(--serif); font-weight: 700; font-size: 26px; color: var(--navy); line-height: 1.25; }
 .prose h2:first-of-type { margin-top: 0; }
 .prose h3 { margin: 28px 0 8px; font-size: 17px; font-weight: 700; color: var(--navy); }
@@ -324,3 +331,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 @media (max-width: 560px) {
   .hero-figure::before { inset: 18px 0 -18px 18px; }
 }
+
+/* Legal-page lead note and closing line */
+.prose .lead { font-size: 17px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 32px; }
+.prose .closing { margin: 44px 0 0; padding-top: 24px; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: 15px; }

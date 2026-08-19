@@ -11,7 +11,7 @@ Any source that is missing or unreadable gets a clearly-marked "photo pending"
 placeholder at the correct aspect ratio, so the preview stays reviewable.
 Drop the real file into images/_src/ and re-run to replace it.
 """
-import os, sys
+import os, sys, json
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,15 +25,15 @@ SPEC = {
     "joffrey-long": (
         "joffrey-long.png", [320, 640, 748], (748, 839), "Portrait of Joffrey Long"),
     "residential-rental-property": (
-        "Residential-Rental-Property.webp", [400, 750], (750, 400), "Residential Rental Property"),
+        "Residential-Rental-Property.webp", [400, 750, 1100], (750, 400), "Residential Rental Property"),
     "automotive-service-centers": (
-        "Automotive-Service-Centers.webp", [400, 750], (750, 400), "Automotive / Service Centers"),
+        "Automotive-Service-Centers.webp", [400, 750, 1100], (750, 400), "Automotive / Service Centers"),
     "mixed-use": (
-        "Mix-Use.webp", [400, 750], (750, 400), "Mixed Use Properties"),
+        "Mix-Use.webp", [400, 750, 1100], (750, 400), "Mixed Use Properties"),
     "industrial-warehouse": (
-        "Industrial-Warehouse.webp", [400, 750], (750, 400), "Industrial / Warehouse"),
+        "Industrial-Warehouse.webp", [400, 750, 1100], (750, 400), "Industrial / Warehouse"),
     "other-property-types": (
-        "Other-Property-Types.webp", [400, 750], (750, 400), "Other Property Types"),
+        "Other-Property-Types.webp", [400, 750, 1100], (750, 400), "Other Property Types"),
 }
 
 
@@ -76,7 +76,7 @@ def placeholder(w, h, label):
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    made, placeheld = 0, []
+    made, placeheld, manifest = 0, [], {}
     for slug, (fname, widths, ph_size, label) in SPEC.items():
         print(f"  {slug}")
         im = load(os.path.join(SRC, fname))
@@ -84,6 +84,7 @@ def main():
             print(f"    -> PLACEHOLDER (source '{fname}' missing or truncated)")
             im = placeholder(*ph_size, label)
             placeheld.append((slug, fname))
+        built = []
         for w in widths:
             if w > im.width:
                 continue                          # never upscale
@@ -93,8 +94,17 @@ def main():
             rs.save(os.path.join(OUT, f"{slug}-{w}.jpg"),  "JPEG", quality=82,
                     optimize=True, progressive=True)
             made += 2
+            built.append([w, h])
             print(f"    {w}px -> {slug}-{w}.webp + .jpg")
-    print(f"\n  {made} files written to images/")
+        manifest[slug] = {
+            "widths":      [w for w, _ in built],
+            "intrinsic":   built[-1] if built else list(ph_size),
+            "placeholder": im is None or slug in [s for s, _ in placeheld],
+        }
+    with open(os.path.join(OUT, "manifest.json"), "w") as f:
+        json.dump(manifest, f, indent=2, sort_keys=True)
+        f.write("\n")
+    print(f"\n  {made} files written to images/  (+ manifest.json)")
     if placeheld:
         print(f"\n  !! {len(placeheld)} PLACEHOLDER(S) — real photos still needed:")
         for slug, fname in placeheld:

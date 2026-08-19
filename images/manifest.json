@@ -1,0 +1,73 @@
+{
+  "automotive-service-centers": {
+    "intrinsic": [
+      1100,
+      828
+    ],
+    "placeholder": false,
+    "widths": [
+      400,
+      750,
+      1100
+    ]
+  },
+  "industrial-warehouse": {
+    "intrinsic": [
+      1100,
+      825
+    ],
+    "placeholder": false,
+    "widths": [
+      400,
+      750,
+      1100
+    ]
+  },
+  "joffrey-long": {
+    "intrinsic": [
+      748,
+      839
+    ],
+    "placeholder": false,
+    "widths": [
+      320,
+      640,
+      748
+    ]
+  },
+  "mixed-use": {
+    "intrinsic": [
+      1100,
+      828
+    ],
+    "placeholder": false,
+    "widths": [
+      400,
+      750,
+      1100
+    ]
+  },
+  "other-property-types": {
+    "intrinsic": [
+      1100,
+      732
+    ],
+    "placeholder": false,
+    "widths": [
+      400,
+      750,
+      1100
+    ]
+  },
+  "residential-rental-property": {
+    "intrinsic": [
+      750,
+      400
+    ],
+    "placeholder": false,
+    "widths": [
+      400,
+      750
+    ]
+  }
+}
