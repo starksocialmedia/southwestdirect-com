@@ -347,7 +347,7 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
   /* v2 design places it at 20px; env() keeps it clear of the iOS home bar. */
   right: calc(20px + env(safe-area-inset-right, 0px));
   bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-  z-index: 60;
+  z-index: 1000;   /* clears Leaflet even if the container context is ever lost */
   width: 48px; height: 48px;
   display: grid; place-items: center;
   padding: 0;
@@ -629,7 +629,14 @@ html.menu-open, html.menu-open body { overflow: hidden; }
      box reads as balanced against text that ends on a baseline. */
   .contact-col { padding-bottom: 14px; }
 }
-.leaflet-container { border-radius: 6px; font: inherit; background: var(--cream-tint); }
+/* Leaflet's panes and controls run z-index 100-1000 internally. Giving the
+   container its own stacking context keeps all of that inside the map, so it
+   cannot climb over the sticky header, the drawer or the back-to-top button.
+   Fixes those in one place rather than out-bidding Leaflet on each. */
+.leaflet-container {
+  position: relative; z-index: 0;
+  border-radius: 6px; font: inherit; background: var(--cream-tint);
+}
 .map-pin { background: none; border: 0; }
 .map-pin svg { display: block; filter: drop-shadow(0 2px 3px rgba(20, 29, 64, 0.35)); }
 

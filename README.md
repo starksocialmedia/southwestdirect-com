@@ -749,3 +749,42 @@ Verified the claim before publishing it: every page has one `header`, one
 other eight bullets were re-checked too — 16 focus-visible rules, zero images
 without alt text, zero heading-level skips.
 
+### 28. vCard portrait, and Leaflet stacking
+
+**Portrait embedded.** The vCard had no `PHOTO` property at all — not a remote
+`VALUE=uri` one. It was omitted deliberately back when the instruction was
+"ship without PHOTO field", which is why iOS fell back to "JL" initials. The
+embedding approach is right regardless, since iOS Contacts is unreliable about
+fetching a remote photo at import.
+
+`tools/build-vcard.py` now generates the file: crops the source portrait square
+with the face near centre (iOS masks contact photos to a circle), resizes to
+400 x 400, encodes JPEG at q85 and base64-embeds it as
+`PHOTO;ENCODING=b;TYPE=JPEG`.
+
+The result is **29.8 KB total**, not the 60–90 KB estimated. A clean studio
+portrait at 400px compresses to 21.7 KB before base64, well under the ~50 KB
+budget. Smaller is strictly better here, so it was left alone rather than
+inflated to hit a number.
+
+Validation caught two things worth recording:
+
+* Folding was applied only to the `PHOTO` line at first, leaving `NOTE` at 90
+  octets. Folding now covers every property and counts **octets, not
+  characters**, so it never splits a multi-byte sequence — `NOTE` carries middle
+  dots.
+* Verified end to end: no line over 75 octets, base64 length divisible by four,
+  strict `b64decode` round-trips to a valid 400 x 400 JPEG, and all thirteen
+  properties survive unfolding.
+
+**Leaflet stacking.** The back-to-top button sat at `z-index: 60` while
+Leaflet's panes and controls run **100–1000** internally, so the map painted over
+it. The sticky header (50), drawer (56) and backdrop (55) had the same latent
+problem.
+
+Rather than out-bidding Leaflet on each element, `.leaflet-container` now gets
+`position: relative; z-index: 0`, which gives it its own stacking context and
+keeps everything Leaflet does contained inside the map. The button is also
+raised to 1000 as a backstop. Verified by hit-testing the button's centre point
+while the map genuinely overlaps it: the button wins at both 390px and 1200px.
+
