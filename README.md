@@ -395,8 +395,8 @@ The header is now one row at every width, with three tiers:
 
 | Width | Header |
 | --- | --- |
-| < 375px | brand + hamburger |
-| 375 – 959px | brand + phone icon + hamburger |
+| < 330px | brand + hamburger |
+| 330 – 959px | brand + phone icon + hamburger |
 | >= 960px | full desktop nav + "Call or Text" button |
 
 The text "Call / Text" button was replaced by a 44 x 44 circular phone control —
@@ -404,7 +404,7 @@ inline Feather-style SVG, navy on cream, `aria-label="Call or text
 818-635-1777"`, `href="tel:+18186351777"`, with the SVG marked `aria-hidden`. It
 sits 12px from the hamburger, both centred against the two-line brand. DOM order
 is brand -> phone -> hamburger -> desktop nav, so the tab order reads the way it
-looks. Below 375px the phone icon is dropped so the wordmark keeps its room; the
+looks. Below 330px the phone icon is dropped so the wordmark keeps its room; the
 drawer still carries a prominent Call or Text button.
 
 **The desktop breakpoint moved from 820px to 960px.** Measured: the desktop
@@ -446,4 +446,37 @@ new-tab behaviour is announced, `rel="noopener"` is set, and the attribution is
 repeated as real page text beneath the map.
 
 **There are now no iframes anywhere on the site.**
+
+### 17. Mobile drawer
+
+The v2 full-screen panel is replaced by a slide-in drawer, call-first:
+
+- Slides from the right, 85% viewport width capped at 320px, full height,
+  250ms ease-out (no transition under `prefers-reduced-motion`)
+- Backdrop at `rgba(30,42,94,0.3)`; clicking it closes
+- Order: close button, "Call or Text" CTA, email link, divider, five nav links,
+  credentials at the bottom
+- Cream panel rather than v2's navy one, because the spec calls for a navy CTA
+  with cream text and a navy backdrop — both need a light surface to read against
+- `role="dialog"`, `aria-modal="true"`, `aria-label="Menu"`; `aria-expanded` and
+  the label ("Open menu" / "Close menu") tracked on the hamburger
+- Focus moves to the close button on open and returns to the hamburger on close
+- Focus trap verified cycling close -> CTA -> email -> five links -> wrap
+- Closes on Escape, backdrop click, the close button, and any nav link
+- Page behind is scroll-locked while open
+
+Two bugs found and fixed while building it:
+
+1. **The drawer was 72px tall, not full height.** It was nested inside
+   `<header>`, and the header's `backdrop-filter: blur(8px)` establishes a
+   containing block for `position: fixed` descendants — so `top: 0; bottom: 0`
+   resolved against the 72px header instead of the viewport. The drawer and its
+   backdrop now sit outside `<header>`.
+2. **Focus landed on the skip link instead of the drawer.** `visibility` was
+   being transitioned over 250ms, so the panel was still hidden — and therefore
+   unfocusable — at the moment focus was moved into it. Visibility now flips
+   instantly on open and only waits for the slide on close.
+
+Verified across 18 width/state combinations: correct header tier, single row and
+no horizontal scrolling at every width, drawer open and closed.
 

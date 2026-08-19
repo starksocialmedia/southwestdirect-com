@@ -435,39 +435,6 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 .nav-toggle:focus, .nav-toggle:focus-visible,
 .back-to-top:focus, .back-to-top:focus-visible { border-radius: 4px; }
 
-.mobile-menu {
-  position: absolute; top: 100%; left: 0; right: 0;
-  /* 100% resolves to the header's height, so the panel always fills exactly the
-     rest of the viewport without hardcoding a header height. dvh keeps it right
-     while mobile browser chrome collapses. */
-  height: calc(100vh - 100%);
-  height: calc(100dvh - 100%);
-  z-index: 49;
-  background: var(--navy);
-  display: flex; flex-direction: column; justify-content: space-between;
-  padding: 32px 24px 28px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-.mobile-menu[hidden] { display: none; }
-.mobile-menu-links { display: flex; flex-direction: column; }
-.mobile-menu-links a {
-  color: var(--cream); text-decoration: none;
-  font-family: var(--serif); font-size: 28px; font-weight: 600;
-  padding: 16px 4px; border-bottom: 1px solid rgba(250, 250, 247, 0.15);
-}
-.mobile-menu-links a:last-child { border-bottom: none; }
-.mobile-menu-links a:hover { color: var(--gold); }
-.mobile-menu-foot { display: flex; flex-direction: column; gap: 14px; padding-top: 28px; }
-.mobile-menu-foot .btn-primary { font-size: 17px; padding: 16px 18px; text-align: center; }
-.mobile-menu-note {
-  margin: 0; text-align: center; font-size: 13px;
-  letter-spacing: 0.06em; color: var(--lavender-dim);
-}
-
-/* The desktop header needs 959px to sit on one row (brand 170 + nav 716 + gap +
-   gutters). Below that the compact controls are used instead, so the header is
-   never a wrapped two-row block. */
 @media (max-width: 959px) {
   .main-nav { display: none; }
   .mobile-controls { display: flex; }
@@ -479,14 +446,13 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
   .brand { min-width: 0; }
 }
 
-/* Under 375px the brand wordmark needs the room more than the call shortcut
-   does; the drawer still carries a prominent Call or Text button. */
-@media (max-width: 374px) {
+/* Under 330px the brand wordmark needs the room more than the call shortcut
+   does; the drawer still carries a prominent Call or Text button. Above that
+   there is comfortably space for both controls. */
+@media (max-width: 329px) {
   .icon-phone { display: none; }
 }
 
-/* Freeze the page behind the open panel. */
-html.menu-open, html.menu-open body { overflow: hidden; }
 
 @media print {
   .mobile-controls, .mobile-menu { display: none !important; }
@@ -510,4 +476,101 @@ html.menu-open, html.menu-open body { overflow: hidden; }
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
   overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* --- Mobile drawer -------------------------------------------------------
+   Slides in from the right over a dimmed backdrop. Call-first: the phone CTA
+   is the first thing under the close button. Light panel so the navy CTA and
+   the navy backdrop both read.
+   ------------------------------------------------------------------------ */
+.drawer-backdrop {
+  position: fixed; inset: 0; z-index: 55;
+  background: rgba(30, 42, 94, 0.3);
+  opacity: 0; visibility: hidden;
+  /* visibility flips instantly on open and waits for the fade on close, so the
+     panel is focusable the moment it is asked for. */
+  transition: opacity 250ms ease-out, visibility 0s linear 250ms;
+}
+.drawer-backdrop.is-open {
+  opacity: 1; visibility: visible;
+  transition: opacity 250ms ease-out, visibility 0s linear 0s;
+}
+
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 56;
+  width: 85%; max-width: 320px;
+  background: var(--cream);
+  display: flex; flex-direction: column;
+  padding: 10px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  padding-right: calc(20px + env(safe-area-inset-right, 0px));
+  overflow-y: auto; overscroll-behavior: contain;
+  box-shadow: -8px 0 28px rgba(20, 29, 64, 0.18);
+  /* visibility rather than [hidden] so the slide can actually animate, and it
+     still keeps the panel out of the tab order and the a11y tree when shut. */
+  visibility: hidden;
+  transform: translateX(100%);
+  transition: transform 250ms ease-out, visibility 0s linear 250ms;
+}
+.drawer.is-open {
+  visibility: visible; transform: none;
+  transition: transform 250ms ease-out, visibility 0s linear 0s;
+}
+
+.drawer-head { display: flex; justify-content: flex-end; }
+.drawer-close {
+  width: 44px; height: 44px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: none; border-radius: 4px;
+  color: var(--navy); cursor: pointer;
+}
+.drawer-close:hover { background: var(--cream-tint); color: var(--navy); }
+.drawer-close svg { display: block; }
+
+.drawer-cta {
+  display: block; margin: 6px 0 12px; padding: 16px 18px;
+  background: var(--navy); color: var(--cream);
+  font-size: 17px; font-weight: 700; text-align: center;
+  text-decoration: none; border-radius: 4px;
+}
+.drawer-cta:hover { background: var(--navy-deep); color: var(--cream); }
+
+.drawer-email {
+  display: block; text-align: center;
+  font-size: 15px; font-weight: 600; color: var(--brown);
+  text-decoration: underline; text-underline-offset: 4px;
+  padding: 6px 4px;
+}
+.drawer-email:hover { color: var(--navy); }
+
+.drawer-divider { border: 0; border-top: 1px solid var(--line); margin: 18px 0 6px; }
+
+.drawer-nav { display: flex; flex-direction: column; }
+.drawer-nav a {
+  color: var(--navy); text-decoration: none;
+  font-family: var(--serif); font-size: 21px; font-weight: 600;
+  padding: 14px 4px; border-bottom: 1px solid var(--line);
+}
+.drawer-nav a:last-child { border-bottom: none; }
+.drawer-nav a:hover { color: var(--brown); }
+
+.drawer-trust {
+  list-style: none; margin: auto 0 0; padding: 20px 4px 0;
+  border-top: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 12px; letter-spacing: 0.04em; color: var(--ink-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer, .drawer-backdrop { transition: none; }
+}
+
+/* The drawer is a mobile affordance only. */
+@media (min-width: 960px) {
+  .drawer, .drawer-backdrop { display: none; }
+}
+
+html.menu-open, html.menu-open body { overflow: hidden; }
+
+@media print {
+  .drawer, .drawer-backdrop { display: none !important; }
 }

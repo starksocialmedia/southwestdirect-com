@@ -159,8 +159,8 @@ def header(prefix=""):
              ("Loan brokers", "#brokers"), ("About", "#about"), ("Contact", "#contact")]
     desktop = "\n".join(
         f'      <a class="nav-link" href="{prefix}{h}">{t}</a>' for t, h in links)
-    mobile = "\n".join(
-        f'        <a href="{prefix}{h}">{t}</a>' for t, h in links)
+    drawer_links = "\n".join(
+        f'      <a href="{prefix}{h}">{t}</a>' for t, h in links)
     return f'''<a class="skip-link" href="#main">Skip to main content</a>
 
 <header class="site-header">
@@ -200,16 +200,37 @@ def header(prefix=""):
     </nav>
   </div>
 
-  <nav id="mobile-menu" class="mobile-menu" aria-label="Page sections" hidden>
-    <div class="mobile-menu-links">
-{mobile}
+</header>
+
+  <div class="drawer-backdrop" data-drawer-close></div>
+
+  <div id="mobile-menu" class="drawer" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="drawer-head">
+      <button type="button" class="drawer-close" data-drawer-close aria-label="Close menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M4 4l12 12M16 4L4 16" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
     </div>
-    <div class="mobile-menu-foot">
-      <a class="btn-primary" href="tel:{PHONE_TEL}">Call or Text {PHONE_DISPLAY}</a>
-      <p class="mobile-menu-note">43 years &middot; Direct lender &middot; DRE #00898122 &middot; NMLS #285731</p>
-    </div>
-  </nav>
-</header>'''
+
+    <a class="drawer-cta" href="tel:{PHONE_TEL}">Call or Text {PHONE_DISPLAY}</a>
+    <a class="drawer-email" href="mailto:{EMAIL_PAGE}">Email {EMAIL_PAGE}</a>
+
+    <hr class="drawer-divider">
+
+    <nav class="drawer-nav" aria-label="Page sections">
+{drawer_links}
+    </nav>
+
+    <ul class="drawer-trust">
+      <li>43 years of lending</li>
+      <li>CMA Board of Directors</li>
+      <li>Direct lender</li>
+      <li>DRE #00898122</li>
+      <li>NMLS #285731</li>
+    </ul>
+  </div>'''
 
 def contact():
     return f'''<section id="contact" class="wrap contact" aria-labelledby="contact-h">
