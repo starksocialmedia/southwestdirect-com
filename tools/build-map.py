@@ -17,7 +17,9 @@ the required attribution is burned into the image and repeated as page text.
 import math, os, sys, urllib.request
 from PIL import Image, ImageDraw, ImageFont
 
-LAT, LON, ZOOM = 33.65350, -117.84400, 15
+# Geocoded from "5151 California Ave, Irvine, CA 92617" via OSM Nominatim.
+# The design's original marker sat ~1.7km north-east of the actual address.
+LAT, LON, ZOOM = 33.64074, -117.85386, 16
 OUT_W, OUT_H = 1040, 760
 TILE = 256
 UA = "SouthwestDirect-static-map/1.0 (nathan@starksocial.com)"

@@ -1,0 +1,10 @@
+# southwestdirect.com
+# NOTE: while this build is a preview, every page also carries
+# <meta name="robots" content="noindex, nofollow">. That tag is what keeps the
+# preview out of search results — this file is written for launch, when the
+# noindex tags come out.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://southwestdirect.com/sitemap.xml

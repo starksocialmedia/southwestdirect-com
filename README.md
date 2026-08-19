@@ -480,3 +480,100 @@ Two bugs found and fixed while building it:
 Verified across 18 width/state combinations: correct header tier, single row and
 no horizontal scrolling at every width, drawer open and closed.
 
+### 18. Audit pass (19 Aug 2026)
+
+**WCAG 2.1 AA.** Every text node on all four pages was measured against its
+resolved background (walking up through transparent ancestors and compositing
+alpha), with the large-text rule applied at 24px, or 18.66px when bold:
+
+| Page | Nodes checked | Failures |
+| --- | --- | --- |
+| index.html | 125 | 0 |
+| index.html (drawer open) | 137 | 0 |
+| accessibility-statement.html | 88 | 0 |
+| privacy-terms.html | 134 | 0 |
+| 404.html | 36 | 0 |
+
+Hover and focus states were checked separately, since computed styles only show
+the resting state. **One real failure found and fixed:** `.btn-primary:hover`
+darkened the gold to `#A6793F`, dropping the button label to **4.24:1**. The
+hover gold is now `#AF7F45` (**4.65:1**), still visibly darker than the resting
+`#B8874B`. Lowest passing value anywhere is now 4.65:1.
+
+Also verified: `lang="en"` and a unique `<title>` on all four pages; one `h1`
+each with no skipped levels; the skip link first in tab order; one `<main>` per
+page with the footer outside it; every `<nav>` and `<section>` labelled; every
+image carrying alt text or an intentional `alt=""`; every inline SVG
+`aria-hidden`; no positive `tabindex`; no forms (so no label requirement); and
+`prefers-reduced-motion` honoured on smooth scroll, the back-to-top scroll, the
+drawer slide and the backdrop fade.
+
+**Bug found:** the 404 page was missing its closing `</main>`, which made the
+footer parse as nested inside `<main>`. All four pages now have balanced tags.
+
+**Schema.org.** Validates clean: JSON-LD parses, no unrecognised properties on
+either the organisation or the `Person` node, all four required properties
+present, and the licence numbers correctly split (company DRE + NMLS on the org,
+Joffrey's on the nested `founder`). `geo` and `hasMap` were added — see note 19
+for the coordinate correction that came out of this.
+
+**Performance.** Lighthouse itself could not be run — there is no Node on this
+machine, so there is no score to report. The underlying signals were measured
+directly instead: 28 KB document, 234 KB total across 10 requests, DOM ready at
+51ms and load at 75ms on localhost. All 9 images use `<picture>` with a WebP
+source and a JPEG fallback, all carry explicit `width`/`height`, 8 of 9 are
+lazy-loaded with only the hero eager, the single script is deferred, and the
+console is clean. Google Fonts already requests `display=swap`. Added a
+`preload` hint for the hero portrait, which is the LCP element.
+
+**SEO.** Two issues fixed: the landing page description was 169 characters (now
+141), and its canonical pointed at `/index.html` rather than the bare root — the
+site now has one canonical URL, not two. Added `robots.txt` and `sitemap.xml`,
+both written for launch rather than for the preview.
+
+### 19. The map pin was in the wrong place
+
+Geocoding "5151 California Ave, Irvine, CA 92617" against OSM Nominatim returned
+**33.64074, -117.85386**. The marker inherited from the design sat at 33.65350,
+-117.84400 — **1.68 km away**. The map has been re-centred on the geocoded
+address (and zoomed from 15 to 16 for a closer view), the "view larger map" link
+updated, and the same coordinates used for the `geo` property.
+
+Worth a sanity check from your end: the geocoder places 5151 California Avenue on
+the UC Irvine campus, which is consistent with the 92617 postcode, but it is
+worth confirming the suite number and building are right before launch.
+
+### 20. Additions
+
+- **`404.html`** — branded, links back to the home page and to each section,
+  with the phone number and e-mail inline. GitHub Pages serves it automatically.
+- **Print stylesheet** — drops the header, drawer, back-to-top, coastal band,
+  map and legal nav; flattens the reversed-out navy sections to black on white
+  so they do not flood a printer; spells out non-obvious link destinations; and
+  sets sensible page-break rules.
+- **`forced-colors` support** — Windows High Contrast strips background fills,
+  which would erase the phone, hamburger and back-to-top controls entirely since
+  their shape *is* the fill. They now keep a `ButtonText` border under
+  `forced-colors: active`.
+- **PWA icons** — `icon-192.png` added alongside the existing 512, plus
+  `site.webmanifest`.
+- **Footer credit** — "Website crafted by Stark Social", muted, right-aligned on
+  desktop and centred on mobile.
+- **Hero plate on mobile** — the decorative navy offset behind the portrait is
+  hidden below 768px, where it crowded the stacked layout. The portrait itself
+  is unchanged.
+
+Deliberately **not** added:
+
+- **`CNAME`** — adding it before DNS points at GitHub would break the
+  `github.io` preview URL. It should land as part of the launch cutover.
+- **`_headers`** — GitHub Pages cannot set custom headers, so the file would do
+  nothing here. For Cloudflare Pages the recommended starting set is
+  `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`,
+  `X-Frame-Options: DENY`, and a CSP of roughly
+  `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'` —
+  the `unsafe-inline` on scripts is only needed for the one-line `js` class flag
+  in `<head>`, which could be moved to a hashed inline script at launch.
+- **`BreadcrumbList`** — not applicable. This is a one-page site with two legal
+  pages; there is no hierarchy to describe.
+

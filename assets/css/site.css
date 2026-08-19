@@ -11,7 +11,7 @@
   --navy:         #1E2A5E;
   --navy-deep:    #141D40;
   --gold:         #B8874B;
-  --gold-hover:   #A6793F;
+  --gold-hover:   #AF7F45; /* a11y: #A6793F dropped the button label to 4.24:1 */
   --gold-on-dark: #C19661; /* a11y: #B8874B is 4.27:1 on navy, below AA for small text */
   --brown:        #8A6234;
   --ink:          #44403A;
@@ -323,11 +323,11 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
   .btn-primary { white-space: normal; }
 }
 
-/* The hero's decorative navy plate is offset 18px to the right of the portrait.
-   Once the figure goes full-width it would push past the 24px gutter, so pull
-   the offset in on narrow screens. Keeps the page free of horizontal scroll. */
-@media (max-width: 560px) {
-  .hero-figure::before { inset: 18px 0 -18px 18px; }
+/* The hero's decorative navy plate offsets behind the portrait on desktop. Once
+   the layout stacks it just crowds the surrounding content, so it is dropped
+   entirely on mobile. The portrait itself is unaffected. */
+@media (max-width: 767px) {
+  .hero-figure::before { display: none; }
 }
 
 /* Legal-page lead note and closing line */
@@ -573,4 +573,54 @@ html.menu-open, html.menu-open body { overflow: hidden; }
 
 @media print {
   .drawer, .drawer-backdrop { display: none !important; }
+}
+
+/* --- Footer credit ------------------------------------------------------- */
+.footer-credit {
+  margin: 4px 0 0; text-align: center;
+  font-size: 12px; letter-spacing: 0.02em; color: var(--lavender-dim);
+}
+.footer-credit a { color: var(--lavender); text-decoration: underline; text-underline-offset: 3px; }
+.footer-credit a:hover { color: var(--cream); }
+@media (min-width: 700px) {
+  .footer-credit { text-align: right; }
+}
+
+/* --- Print --------------------------------------------------------------- */
+@media print {
+  /* Interactive chrome carries no meaning on paper. */
+  .site-header, .skip-link, .back-to-top, .drawer, .drawer-backdrop,
+  .mobile-controls, .main-nav, .footer-legal-nav, .footer-credit,
+  .california-band, .contact-map { display: none !important; }
+
+  html, body { background: #fff !important; color: #000 !important; }
+  body { font-size: 11.5pt; line-height: 1.45; }
+
+  /* Reversed-out sections would waste ink; print them as plain text. */
+  .band, .band-navy, .trustbar, .site-footer { background: #fff !important; }
+  .trustbar li, .brokers-title, .broker-title, .broker-text, .brokers-lede,
+  .footer-brand, .footer-disclosures, .footer-disclosures a, .footer-meta,
+  .footer-meta a { color: #000 !important; }
+  .brokers-eyebrow { color: #444 !important; }
+
+  a { color: #000 !important; text-decoration: underline; }
+  /* Spell out destinations that are not obvious from the link text. */
+  .prose a[href^="http"]::after,
+  .footer-disclosures a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; }
+
+  h1, h2, h3 { page-break-after: avoid; }
+  p, li, figure, .card { page-break-inside: avoid; }
+  .section-pad, .about, .contact { padding-top: 18pt !important; padding-bottom: 18pt !important; }
+  img { max-width: 100% !important; }
+}
+
+/* --- Forced colours ------------------------------------------------------ */
+/* Windows High Contrast / forced-colors strips backgrounds; make sure the
+   controls that rely on a filled shape keep a visible outline. */
+@media (forced-colors: active) {
+  .btn-primary, .icon-phone, .nav-toggle, .back-to-top, .drawer-cta, .drawer-close {
+    border: 1px solid ButtonText;
+  }
+  .back-to-top, .icon-phone, .nav-toggle { forced-color-adjust: none; }
+  .card, .map-img, .drawer { border: 1px solid CanvasText; }
 }

@@ -51,6 +51,12 @@ JSONLD = '''<script type="application/ld+json">
     "@type": "State",
     "name": "California"
   },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 33.64074,
+    "longitude": -117.85386
+  },
+  "hasMap": "https://www.openstreetmap.org/?mlat=33.64074&mlon=-117.85386",
   "identifier": [
     { "@type": "PropertyValue", "name": "California DRE License", "value": "00898122" },
     { "@type": "PropertyValue", "name": "NMLS ID", "value": "285731" }
@@ -110,6 +116,14 @@ def picture(slug, cls, alt, sizes, indent, lazy=True, priority=False):
 
 
 def head(title, desc, page_path, og_type="website"):
+    # index.html canonicalises to the bare root so the site has one URL, not two.
+    canonical_path = "" if page_path == "index.html" else page_path
+    # The hero portrait is the LCP element on the landing page; hint it early.
+    hero_preload = (
+        '<link rel="preload" as="image" href="images/joffrey-long-640.jpg"\n'
+        '      imagesrcset="images/joffrey-long-320.jpg 320w, images/joffrey-long-640.jpg 640w, images/joffrey-long-748.jpg 748w"\n'
+        '      imagesizes="(min-width: 900px) 320px, (min-width: 560px) 40vw, 80vw">'
+    ) if page_path == "index.html" else ""
     return f'''<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
@@ -118,14 +132,14 @@ def head(title, desc, page_path, og_type="website"):
 <!-- PREVIEW ONLY — remove this line before the production launch. -->
 <meta name="robots" content="noindex, nofollow">
 
-<link rel="canonical" href="{PROD_URL}/{page_path}">
+<link rel="canonical" href="{PROD_URL}/{canonical_path}">
 
 <!-- Open Graph / social sharing -->
 <meta property="og:type" content="{og_type}">
 <meta property="og:site_name" content="Joffrey Long / SouthwestDirect.com">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
-<meta property="og:url" content="{PROD_URL}/{page_path}">
+<meta property="og:url" content="{PROD_URL}/{canonical_path}">
 <meta property="og:image" content="{PROD_URL}/assets/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -142,12 +156,14 @@ def head(title, desc, page_path, og_type="website"):
 <link rel="icon" href="assets/favicon-16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="shortcut icon" href="assets/favicon.ico">
+<link rel="manifest" href="assets/site.webmanifest">
 <meta name="theme-color" content="#1E2A5E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/site.css">
+{hero_preload}
 <script>document.documentElement.classList.add("js");</script>
 
 {JSONLD}'''
@@ -257,7 +273,7 @@ def contact():
       </dl>
     </div>
     <div class="contact-map">
-      <a class="map-link" href="https://www.openstreetmap.org/?mlat=33.65350&amp;mlon=-117.84400#map=15/33.6535/-117.8440"
+      <a class="map-link" href="https://www.openstreetmap.org/?mlat=33.64074&amp;mlon=-117.85386#map=17/33.64074/-117.85386"
          target="_blank" rel="noopener">
 {picture("office-map", "map-img", "Map showing the office at 5151 California Ave STE 100, Irvine, California", "(min-width: 960px) 520px, 92vw", 8)}
         <span class="visually-hidden"> (opens OpenStreetMap in a new tab)</span>
@@ -284,6 +300,9 @@ def footer(current=None):
       <p>Investments in trust deeds secured by one or more interests in real property are subject to risk of loss. Southwest Bancorp does not make (fund) consumer purpose loans that are secured by 1-4 family residences. Those loans may be arranged with institutional lenders, under NMLS Identifier No. 285731 (Southwest Bancorp) and No. 207202 (Joffrey Long).</p>
     </div>
     <p class="footer-meta">5151 California Ave STE 100, Irvine, CA 92617-3205 &middot; <a href="tel:{PHONE_TEL}">818-635-1777</a> &middot; <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a></p>
+    <p class="footer-credit">Website crafted by
+      <a href="https://starksocial.com" target="_blank" rel="noopener noreferrer">Stark Social</a>
+    </p>
   </div>
 </footer>'''
 
@@ -757,10 +776,33 @@ PRIVACY_BODY = f'''<main id="main">
 </main>'''
 
 
+NOTFOUND_BODY = f'''<main id="main">
+  <div class="page-head">
+    <div class="page-head-inner">
+      <p class="eyebrow">Error 404</p>
+      <h1 class="page-title">That page isn\u2019t here</h1>
+      <p class="page-sub">The link may be out of date, or the address mistyped. Everything on this site lives on the home page \u2014 or just call and ask.</p>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p><a href="index.html">Back to the home page</a></p>
+    <ul>
+      <li><a href="index.html#how-it-works">How it works</a></li>
+      <li><a href="index.html#property-types">Property types we lend on</a></li>
+      <li><a href="index.html#brokers">For loan brokers</a></li>
+      <li><a href="index.html#about">About Joffrey Long</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+    <p>Or reach Joffrey directly on <a href="tel:{PHONE_TEL}">{PHONE_DISPLAY}</a>
+       or at <a href="mailto:{EMAIL_PAGE}">{EMAIL_PAGE}</a>.</p>
+  </div>
+</main>'''
+
 PAGES = [
     ("index.html",
      "Joffrey Long | SouthwestDirect.com — Direct Hard Money Lender, California",
-     "Direct hard-money lending for California real estate investors. Talk to Joffrey Long, a decision-maker, not a middleman. Close in 5–12 days. DRE #00898122, NMLS #285731.",
+     "Direct hard-money lending for California real estate investors. Talk to Joffrey Long — a decision-maker, not a middleman. Close in 5–12 days.",
      INDEX_BODY, None, ""),
     ("accessibility-statement.html",
      "Accessibility Statement | Joffrey Long / SouthwestDirect.com",
@@ -770,6 +812,10 @@ PAGES = [
      "Privacy Policy & Terms of Service | Joffrey Long / SouthwestDirect.com",
      "Privacy Policy and Terms of Service for SouthwestDirect.com, operated by Southwest Bancorp. No cookies, no tracking, no contact forms.",
      PRIVACY_BODY, "privacy", "index.html"),
+    ("404.html",
+     "Page not found | Joffrey Long / SouthwestDirect.com",
+     "That page could not be found. Return to SouthwestDirect.com, or call Joffrey Long directly on (818) 635-1777.",
+     NOTFOUND_BODY, None, "index.html"),
 ]
 
 for path, title, desc, body, current, prefix in PAGES:
