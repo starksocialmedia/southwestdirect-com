@@ -20,6 +20,10 @@ OUT  = os.path.join(ROOT, "images")
 
 CREAM = (250, 250, 247)
 
+# 78 rather than 82: about 25% smaller across the photo set with no visible
+# difference at the sizes these are displayed at.
+WEBP_QUALITY = 78
+
 # slug -> (source filename, [widths], (placeholder_w, placeholder_h), label)
 SPEC = {
     "joffrey-long": (
@@ -41,7 +45,7 @@ SPEC = {
         "california-band.jpg", [768, 1280, 1920], (1920, 320), "California coastline"),
     # Static replacement for the interactive OSM embed; see tools/build-map.py.
     "office-map": (
-        "office-map.png", [520, 1040], (1040, 760), "Office location map"),
+        "office-map.png", [600, 1200], (1200, 800), "Office location map"),
 }
 
 # Slugs that must render a "PHOTO PENDING" placeholder even though a source file
@@ -113,7 +117,7 @@ def main():
                 continue                          # never upscale
             h = round(im.height * w / im.width)
             rs = im.resize((w, h), Image.LANCZOS)
-            rs.save(os.path.join(OUT, f"{slug}-{w}.webp"), "WEBP", quality=82, method=6)
+            rs.save(os.path.join(OUT, f"{slug}-{w}.webp"), "WEBP", quality=WEBP_QUALITY, method=6)
             rs.save(os.path.join(OUT, f"{slug}-{w}.jpg"),  "JPEG", quality=82,
                     optimize=True, progressive=True)
             made += 2

@@ -66,14 +66,14 @@
   },
   "office-map": {
     "intrinsic": [
-      1040,
-      760
+      1200,
+      800
     ],
     "label": "Office location map",
     "placeholder": false,
     "widths": [
-      520,
-      1040
+      600,
+      1200
     ]
   },
   "other-property-types": {

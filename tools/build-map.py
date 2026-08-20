@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Render a static map of the office location by stitching OpenStreetMap tiles.
+Render a static map of the office location by stitching CARTO Positron tiles.
 
 Usage:  python3 tools/build-map.py
 
@@ -20,8 +20,8 @@ from PIL import Image, ImageDraw, ImageFont
 # Geocoded from "5151 California Ave, Irvine, CA 92617" via OSM Nominatim.
 # The design's original marker sat ~1.7km north-east of the actual address.
 LAT, LON, ZOOM = 33.64074, -117.85386, 16
-OUT_W, OUT_H = 1040, 760
-TILE = 256
+OUT_W, OUT_H = 1200, 800
+TILE = 512   # @2x tiles
 UA = "SouthwestDirect-static-map/1.0 (nathan@starksocial.com)"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEST = os.path.join(ROOT, "images", "_src", "office-map.png")
@@ -39,7 +39,9 @@ def deg2px(lat, lon, z):
 
 
 def fetch(z, x, y):
-    url = f"https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+    # CARTO Positron: the muted style the interactive map used, no API key.
+    sub = "abcd"[(x + y) % 4]
+    url = f"https://{sub}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png"
     req = urllib.request.Request(url, headers={"User-Agent": UA})
     with urllib.request.urlopen(req, timeout=30) as r:
         return Image.open(__import__("io").BytesIO(r.read())).convert("RGB")
@@ -79,7 +81,7 @@ def main():
         font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", 15)
     except Exception:
         font = ImageFont.load_default()
-    txt = "© OpenStreetMap contributors"
+    txt = "© OpenStreetMap contributors © CARTO"
     bb = d.textbbox((0, 0), txt, font=font)
     w, h = bb[2] - bb[0], bb[3] - bb[1]
     d.rectangle([OUT_W - w - 18, OUT_H - h - 16, OUT_W, OUT_H], fill=(255, 255, 255, 200))

@@ -86,77 +86,128 @@
   }
 
   /* ----------------------------------------------------------------- map */
-  /* The container ships with a static image inside it, which is what a
-     no-JS visitor keeps. Leaflet only takes over once it has actually loaded. */
+  /* The container ships with a static image inside it, which is what a no-JS
+     visitor keeps. Leaflet is fetched only once the map nears the viewport, so
+     its 160KB never sits on the initial critical path. Behaviour once loaded is
+     unchanged: same tiles, same pin, same popup. */
   var mapEl = document.getElementById("office-map");
 
-  if (mapEl && window.L) {
-    var lat = parseFloat(mapEl.dataset.lat);
-    var lon = parseFloat(mapEl.dataset.lon);
-    var zoom = parseInt(mapEl.dataset.zoom, 10);
+  if (mapEl) {
+    var LEAFLET_CSS = "assets/vendor/leaflet/leaflet.css";
+    var LEAFLET_JS = "assets/vendor/leaflet/leaflet.js";
+    var mapStarted = false;
 
-    mapEl.innerHTML = "";                       // drop the static fallback
-    var note = document.querySelector(".map-note");
-    if (note) note.remove();                    // Leaflet renders its own attribution
+    var initMap = function () {
+      var lat = parseFloat(mapEl.dataset.lat);
+      var lon = parseFloat(mapEl.dataset.lon);
+      var zoom = parseInt(mapEl.dataset.zoom, 10);
 
-    var map = L.map(mapEl, {
-      center: [lat, lon],
-      zoom: zoom,
-      // Cooperative by default: the wheel scrolls the page until the reader
-      // deliberately activates the map, and touch drag is left to the page.
-      scrollWheelZoom: false,
-      dragging: !L.Browser.mobile,
-      tap: false
-    });
+      mapEl.innerHTML = "";                       // drop the static fallback
+      var note = document.querySelector(".map-note");
+      if (note) note.remove();                    // Leaflet renders its own attribution
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-      maxZoom: 19,
-      subdomains: "abcd",
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors ' +
-        '&copy; <a href="https://carto.com/attributions">CARTO</a>'
-    }).addTo(map);
+      var map = L.map(mapEl, {
+        center: [lat, lon],
+        zoom: zoom,
+        // Cooperative by default: the wheel scrolls the page until the reader
+        // deliberately activates the map, and touch drag is left to the page.
+        scrollWheelZoom: false,
+        dragging: !L.Browser.mobile,
+        tap: false
+      });
 
-    var pin = L.divIcon({
-      className: "map-pin",
-      iconSize: [30, 40],
-      iconAnchor: [15, 38],
-      popupAnchor: [0, -34],
-      html:
-        '<svg width="30" height="40" viewBox="0 0 30 40" aria-hidden="true" focusable="false">' +
-          '<path d="M15 39C15 39 28 24.5 28 14.5A13 13 0 1 0 2 14.5C2 24.5 15 39 15 39Z" ' +
-                'fill="#1E2A5E" stroke="#FAFAF7" stroke-width="2"/>' +
-          '<circle cx="15" cy="14.5" r="5" fill="#B8874B"/>' +
-        '</svg>'
-    });
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+        maxZoom: 19,
+        subdomains: "abcd",
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors ' +
+          '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+      }).addTo(map);
 
-    var addr = "5151 California Ave STE 100, Irvine, CA 92617-3205";
-    var marker = L.marker([lat, lon], {
-      icon: pin,
-      keyboard: true,
-      title: "Joffrey Long / SouthwestDirect.com",
-      alt: "Office location: " + addr
-    }).addTo(map);
+      var pin = L.divIcon({
+        className: "map-pin",
+        iconSize: [30, 40],
+        iconAnchor: [15, 38],
+        popupAnchor: [0, -34],
+        html:
+          '<svg width="30" height="40" viewBox="0 0 30 40" aria-hidden="true" focusable="false">' +
+            '<path d="M15 39C15 39 28 24.5 28 14.5A13 13 0 1 0 2 14.5C2 24.5 15 39 15 39Z" ' +
+                  'fill="#1E2A5E" stroke="#FAFAF7" stroke-width="2"/>' +
+            '<circle cx="15" cy="14.5" r="5" fill="#B8874B"/>' +
+          '</svg>'
+      });
 
-    marker.bindPopup(
-      '<strong>Joffrey Long / SouthwestDirect.com</strong>' +
-      '<span>5151 California Ave STE 100<br>Irvine, CA 92617-3205</span>' +
-      '<a class="map-directions" target="_blank" rel="noopener noreferrer" ' +
-         'href="https://maps.google.com/?q=' + encodeURIComponent(addr) + '">Get directions</a>',
-      { className: "map-popup", closeButton: true, autoPanPadding: [16, 16] }
-    ).openPopup();
+      var addr = "5151 California Ave STE 100, Irvine, CA 92617-3205";
+      var marker = L.marker([lat, lon], {
+        icon: pin,
+        keyboard: true,
+        title: "Joffrey Long / SouthwestDirect.com",
+        alt: "Office location: " + addr
+      }).addTo(map);
 
-    // Activate on deliberate interaction, stand down when the pointer leaves.
-    var activate = function () {
-      map.scrollWheelZoom.enable();
-      if (L.Browser.mobile) map.dragging.enable();
+      marker.bindPopup(
+        '<strong>Joffrey Long / SouthwestDirect.com</strong>' +
+        '<span>5151 California Ave STE 100<br>Irvine, CA 92617-3205</span>' +
+        '<a class="map-directions" target="_blank" rel="noopener noreferrer" ' +
+           'href="https://maps.google.com/?q=' + encodeURIComponent(addr) + '">Get directions</a>',
+        { className: "map-popup", closeButton: true, autoPanPadding: [16, 16] }
+      ).openPopup();
+
+      var activate = function () {
+        map.scrollWheelZoom.enable();
+        if (L.Browser.mobile) map.dragging.enable();
+      };
+      mapEl.addEventListener("click", activate);
+      mapEl.addEventListener("focusin", activate);
+      mapEl.addEventListener("mouseleave", function () { map.scrollWheelZoom.disable(); });
+
+      map.getContainer().setAttribute("aria-label",
+        "Interactive map of the office at " + addr);
     };
-    mapEl.addEventListener("click", activate);
-    mapEl.addEventListener("focusin", activate);
-    mapEl.addEventListener("mouseleave", function () { map.scrollWheelZoom.disable(); });
 
-    map.getContainer().setAttribute("aria-label",
-      "Interactive map of the office at " + addr);
+    var loadLeaflet = function () {
+      if (mapStarted) return;
+      mapStarted = true;
+
+      var link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = LEAFLET_CSS;
+      document.head.appendChild(link);
+
+      var script = document.createElement("script");
+      script.src = LEAFLET_JS;
+      script.onload = initMap;
+      document.head.appendChild(script);
+    };
+
+    // Near enough to be worth fetching: within 400px of the viewport.
+    var mapIsNear = function () {
+      var r = mapEl.getBoundingClientRect();
+      return r.top < window.innerHeight + 400 && r.bottom > -400;
+    };
+
+    var onProximity = function () {
+      if (!mapIsNear()) return;
+      window.removeEventListener("scroll", onProximity);
+      window.removeEventListener("resize", onProximity);
+      loadLeaflet();
+    };
+
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function (entries) {
+        if (entries.some(function (e) { return e.isIntersecting; })) {
+          io.disconnect();
+          loadLeaflet();
+        }
+      }, { rootMargin: "400px" });
+      io.observe(mapEl);
+    }
+
+    // Backstop for environments where the observer never fires — a plain scroll
+    // check, so the map can never end up silently unloaded.
+    window.addEventListener("scroll", onProximity, { passive: true });
+    window.addEventListener("resize", onProximity, { passive: true });
+    onProximity();
   }
 
   /* -------------------------------------------------------- back to top */

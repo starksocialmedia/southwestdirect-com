@@ -123,9 +123,9 @@ def head(title, desc, page_path, og_type="website"):
                    if page_path == "404.html"
                    else '<meta name="robots" content="index, follow, max-image-preview:large">')
     # The hero portrait is the LCP element on the landing page; hint it early.
-    has_map = page_path != "404.html"
-    leaflet_css = '<link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">\n' if has_map else ''
-    leaflet_js = '<script src="assets/vendor/leaflet/leaflet.js" defer></script>\n' if has_map else ''
+    # Leaflet is fetched by site.js only when the map nears the viewport, so
+    # neither its CSS nor its JS sits on the initial critical path.
+    leaflet_css = ''
     hero_preload = (
         '<link rel="preload" as="image" href="images/joffrey-long-640.jpg"\n'
         '      imagesrcset="images/joffrey-long-320.jpg 320w, images/joffrey-long-640.jpg 640w, images/joffrey-long-748.jpg 748w"\n'
@@ -165,10 +165,9 @@ def head(title, desc, page_path, og_type="website"):
 <link rel="manifest" href="assets/site.webmanifest">
 <meta name="theme-color" content="#1E2A5E">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-{leaflet_css}<link rel="stylesheet" href="assets/css/site.css">
+<link rel="preload" href="assets/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/source-serif-4-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/site.min.css">
 {hero_preload}
 <script>document.documentElement.classList.add("js");</script>
 
@@ -355,8 +354,6 @@ BACK_TO_TOP = """<button type="button" class="back-to-top" aria-label="Back to t
 
 def page(title, desc, path, body, current=None, prefix=""):
     # 404 has no contact block, so it does not need the map library
-    leaflet_js = ('<script src="assets/vendor/leaflet/leaflet.js" defer></script>\n'
-                  if path != "404.html" else "")
     return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -370,7 +367,7 @@ def page(title, desc, path, body, current=None, prefix=""):
 {footer(current)}
 
 {BACK_TO_TOP}
-{leaflet_js}<script src="assets/js/site.js" defer></script>
+<script src="assets/js/site.js" defer></script>
 </body>
 </html>
 '''

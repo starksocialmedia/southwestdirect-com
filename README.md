@@ -869,3 +869,56 @@ Verified by measuring rendered line boxes, not by eye: exactly one line box at
 on the landing page — the band that was previously broken. From 700px up the
 row returns to a single line with the separator, unchanged.
 
+### 32. Performance pass
+
+**Self-hosted fonts.** Google served the request as seven per-weight URLs, but
+every file within a family is byte-identical — they are variable fonts. So the
+seven collapse to **two files, 167KB**, declared with `font-weight: 100 900`
+and `200 900`. Latin subset only: every non-ASCII character on the site (en
+dash, em dash, curly quotes) falls inside it, checked character by character.
+Both are preloaded, both `font-display: swap`. **Zero third-party requests
+remain** — the `fonts.googleapis.com` and `fonts.gstatic.com` preconnects are
+gone too.
+
+**CSS minified.** `tools/build-css.py`, no new dependencies. Deliberately
+conservative: it parks strings and `url()` values first so data URIs and quoted
+content survive, then strips comments and collapses whitespace. 37,478 bytes to
+23,939, a 37% reduction. It asserts brace balance and that no `@media` or
+`@font-face` was lost. Pages reference `site.min.css`; the source stays for
+editing.
+
+**Leaflet lazy-loaded.** Its CSS and JS are no longer in the document at all.
+`site.js` injects both when the map comes within 400px of the viewport. Behaviour
+after load is identical — same tiles, pin, popup, cooperative scroll. Initial
+page load is now **9 requests, zero of them third-party**, and Leaflet's 160KB
+is off the critical path entirely.
+
+An `IntersectionObserver` does the detection, with a plain scroll listener as a
+backstop. That is not redundancy for its own sake: the observer never fired in
+the automation environment, and without the fallback the map would have silently
+stayed unloaded. Verified both that Leaflet is absent on first paint and that it
+initialises correctly on approach.
+
+**Images re-encoded** at WebP q78 rather than q82. Total WebP payload 1,387KB to
+1,266KB. That is 8.7%, not the 20–30% estimated — these were already efficiently
+encoded, so there was less slack than expected. Checked visually at full size:
+signage text in the mixed-use photo is still crisp.
+
+**Cache headers.** Added `_headers` with a year on fonts, images and vendor
+files. GitHub Pages ignores it and caps everything at a 10-minute TTL with no
+override, so this takes effect only on the move to Cloudflare Pages at launch.
+Fingerprinted filenames were considered and skipped: they buy nothing while the
+TTL is capped regardless of filename, and they add a rewrite step that can go
+stale.
+
+**Bonus:** the static map that serves as the no-JS fallback was regenerated from
+CARTO Positron tiles, so it now matches the interactive map's style instead of
+standard OSM.
+
+**Accessibility held at zero issues.** Audited against the rules Lighthouse's
+accessibility category runs — accessible names, image alt, lang, title,
+duplicate ids, heading order, positive tabindex, viewport zoom, list and
+definition-list structure, frame titles, ARIA reference resolution, and colour
+contrast — across all four pages at mobile and desktop, and with the map loaded.
+Zero issues, zero contrast failures.
+

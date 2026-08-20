@@ -1,0 +1,25 @@
+# Cloudflare Pages / Netlify style header rules.
+#
+# GitHub Pages ignores this file — it serves everything with a fixed 10-minute
+# max-age and offers no way to change that. These rules are here ready for the
+# move to a host that honours them at launch on southwestdirect.com. Fingerprinted
+# filenames were not adopted because they buy nothing while the TTL is capped at
+# 10 minutes regardless of filename.
+
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/vendor/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*
+  Cache-Control: public, max-age=604800
+
+/*
+  Cache-Control: public, max-age=3600
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY

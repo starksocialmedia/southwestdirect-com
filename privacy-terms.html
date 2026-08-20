@@ -35,11 +35,9 @@
 <link rel="manifest" href="assets/site.webmanifest">
 <meta name="theme-color" content="#1E2A5E">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
-<link rel="stylesheet" href="assets/css/site.css">
+<link rel="preload" href="assets/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/source-serif-4-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/site.min.css">
 
 <script>document.documentElement.classList.add("js");</script>
 
@@ -353,10 +351,10 @@
          target="_blank" rel="noopener" title="Open this location in OpenStreetMap">
         <picture>
           <source type="image/webp" sizes="(min-width: 960px) 520px, 92vw"
-                  srcset="images/office-map-520.webp 520w, images/office-map-1040.webp 1040w">
-          <img class="map-img" src="images/office-map-1040.jpg" sizes="(min-width: 960px) 520px, 92vw"
-               srcset="images/office-map-520.jpg 520w, images/office-map-1040.jpg 1040w"
-               width="1040" height="760" loading="lazy" decoding="async"
+                  srcset="images/office-map-600.webp 600w, images/office-map-1200.webp 1200w">
+          <img class="map-img" src="images/office-map-1200.jpg" sizes="(min-width: 960px) 520px, 92vw"
+               srcset="images/office-map-600.jpg 600w, images/office-map-1200.jpg 1200w"
+               width="1200" height="800" loading="lazy" decoding="async"
                alt="Map showing the office at 5151 California Ave STE 100, Irvine, California">
         </picture>
         <span class="visually-hidden"> (opens OpenStreetMap in a new tab)</span>
@@ -416,7 +414,6 @@
           stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
 </button>
-<script src="assets/vendor/leaflet/leaflet.js" defer></script>
 <script src="assets/js/site.js" defer></script>
 </body>
 </html>
