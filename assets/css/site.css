@@ -407,7 +407,11 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible, iframe:focus-vi
 .back-to-top svg { display: block; }
 
 @media (prefers-reduced-motion: reduce) {
-  .back-to-top { transition: none; transform: none; }
+  /* transform stays translate3d rather than none: it is what keeps the button
+     on its own compositing layer, which is what holds it above the Leaflet map
+     on iOS Safari. Only the transition is dropped. */
+  .back-to-top { transition: none; }
+  .back-to-top:not(.is-visible) { transform: translate3d(0, 0, 0); }
 }
 
 @media print {

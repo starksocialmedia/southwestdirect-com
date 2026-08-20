@@ -922,3 +922,45 @@ definition-list structure, frame titles, ARIA reference resolution, and colour
 contrast — across all four pages at mobile and desktop, and with the map loaded.
 Zero issues, zero contrast failures.
 
+### 33. Back-to-top regression — my minifier broke calc()
+
+The button was in the HTML, the CSS rules were present, and the JavaScript was
+adding `.is-visible` correctly. It was positioned **2,512px to the right and
+4,532px below** the viewport.
+
+`calc()` requires whitespace around `+` and `-`. The minifier's whitespace pass
+stripped it, turning
+
+    right: calc(20px + env(safe-area-inset-right, 0px))
+
+into `calc(20px+env(...))`, which browsers parse to a garbage length rather than
+discarding. So `position: fixed` still applied and the button still toggled
+visibility — it was simply parked off screen.
+
+**All six `calc()` expressions in the stylesheet were affected**, not just the
+button. `calc(72ch + 48px)` sets the text column on both legal pages, and
+`calc(20px + env(safe-area-inset-bottom))` sets the drawer's padding, so those
+were wrong too since the perf push and nobody had spotted them yet.
+
+Fixed by parking `calc(...)` before the whitespace pass, the same way strings
+and `url()` were already protected, and by removing `+` from the set of
+characters the minifier collapses space around — it also appears in
+`nth-child()` expressions. A regression guard now asserts that every `calc()`
+survives with its spacing intact, so this specific failure cannot ship again.
+
+Verified after the fix: `right: 20px`, `bottom: 20px`, `position: fixed`, hidden
+at the top and within the hero, visible past it, and on screen at 390px and
+1440px. Prose column back to 775px and aligned with the page head; drawer
+padding back to 20px.
+
+**Also corrected while here:** the `prefers-reduced-motion` block set
+`transform: none` on the button, which removed the compositing promotion that
+holds it above the Leaflet map on iOS Safari. Reduced-motion users now keep the
+`translate3d` layer and lose only the transition.
+
+`prefers-reduced-motion` on the scroll itself was already implemented and
+unchanged — `behavior: reduceMotion.matches ? "auto" : "smooth"`.
+
+Accessibility re-audited across four pages, mobile and desktop, with the drawer
+open and with the map loaded: 0 issues, 0 contrast failures.
+

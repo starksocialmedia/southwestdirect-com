@@ -23,14 +23,19 @@ def minify(css):
     def park(m):
         vault.append(m.group(0))
         return f"\x00{len(vault) - 1}\x00"
-    css = re.sub(r'"[^"\n]*"|\'[^\'\n]*\'|url\([^)]*\)', park, css)
+    # calc() must be parked too: CSS requires whitespace around + and - inside
+    # it, so collapsing that whitespace silently produces an invalid value.
+    css = re.sub(r'"[^"\n]*"|\'[^\'\n]*\'|url\([^)]*\)'
+                 r'|calc\((?:[^()]|\([^()]*\))*\)', park, css)
 
     # 2. comments
     css = re.sub(r'/\*.*?\*/', '', css, flags=re.S)
 
     # 3. whitespace
     css = re.sub(r'\s+', ' ', css)
-    css = re.sub(r'\s*([{}:;,>~+])\s*', r'\1', css)
+    # '+' is deliberately absent: it appears in calc() and in nth-child()
+    # expressions where the surrounding whitespace is load-bearing.
+    css = re.sub(r'\s*([{}:;,>~])\s*', r'\1', css)
     css = re.sub(r';}', '}', css)
 
     # 4. a space is meaningful in descendant selectors and between values,
@@ -55,8 +60,20 @@ def main():
     assert out.count("{") == out.count("}"), "brace mismatch after minify"
     assert out.count("@media") == src.count("@media"), "media query lost"
     assert out.count("@font-face") == src.count("@font-face"), "font-face lost"
-    print(f"  braces balanced, {out.count('@media')} media queries and "
-          f"{out.count('@font-face')} font-faces preserved")
+    # Regression guard: this minifier once stripped the spaces inside calc(),
+    # which silently moved the back-to-top button thousands of pixels off screen.
+    src_calc = re.findall(r'calc\((?:[^()]|\([^()]*\))*\)', src)
+    out_calc = re.findall(r'calc\((?:[^()]|\([^()]*\))*\)', out)
+    assert len(src_calc) == len(out_calc), "calc() expression lost"
+    for c in out_calc:
+        # '+' is always arithmetic inside calc(), so it must be surrounded by
+        # space. '-' can also be part of an identifier (safe-area-inset-right),
+        # so only flag it where it directly follows a number or a closing paren.
+        assert not re.search(r'\S\+|\+\S', c), f"calc() lost spacing around '+': {c}"
+        assert not re.search(r'[\d)](?:px|%|ch|em|rem|vh|vw|dvh)?-', c), \
+            f"calc() lost spacing around '-': {c}"
+    print(f"  braces balanced, {out.count('@media')} media queries, "
+          f"{out.count('@font-face')} font-faces and {len(out_calc)} calc() preserved")
     return 0
 
 
